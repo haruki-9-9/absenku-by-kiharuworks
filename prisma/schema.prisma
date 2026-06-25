@@ -1,0 +1,327 @@
+// absenku - by KiharuWorks
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// ENUM
+// ─────────────────────────────────────────────
+
+enum Role {
+  DEVELOPER
+  ADMIN_SEKOLAH
+  SEKRETARIS
+  WALI_KELAS
+}
+
+enum StatusAbsensi {
+  H
+  S
+  I
+  A
+}
+
+enum StatusLangganan {
+  AKTIF
+  EXPIRED
+  NONAKTIF
+}
+
+// ─────────────────────────────────────────────
+// BETTER AUTH TABLES
+// ─────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Custom fields
+  password      String?
+  role          Role      @default(SEKRETARIS)
+  isActive      Boolean   @default(true)
+  sekolahId     String?
+
+  // Relations
+  sessions      Session[]
+  accounts      Account[]
+  sekolah       Sekolah?   @relation(fields: [sekolahId], references: [id], onDelete: SetNull)
+  sekretaris    Sekretaris?
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("verification")
+}
+
+// ─────────────────────────────────────────────
+// SEKOLAH
+// ─────────────────────────────────────────────
+
+model Sekolah {
+  id          String   @id @default(cuid())
+  nama        String
+  logoUrl     String?
+  alamat      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  kelas       Kelas[]
+  siswa       Siswa[]
+  hariLibur   HariLibur[]
+  tahunAjaran TahunAjaran[]
+  absensi     Absensi[]
+  konfigurasi KonfigurasiSekolah?
+  langganan   Langganan?
+
+  @@map("sekolah")
+}
+
+// ─────────────────────────────────────────────
+// LANGGANAN
+// ─────────────────────────────────────────────
+
+model Langganan {
+  id              String          @id @default(cuid())
+  sekolahId       String          @unique
+  status          StatusLangganan @default(AKTIF)
+  tanggalMulai    DateTime
+  tanggalBerakhir DateTime
+  catatanAdmin    String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  sekolah         Sekolah         @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+
+  @@map("langganan")
+}
+
+// ─────────────────────────────────────────────
+// KONFIGURASI SEKOLAH
+// ─────────────────────────────────────────────
+
+model KonfigurasiSekolah {
+  id          String   @id @default(cuid())
+  sekolahId   String   @unique
+  jamLock     String   @default("15:00")
+  batasAlpa   Int      @default(3)
+  zonaWaktu   String   @default("Asia/Jakarta")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sekolah     Sekolah  @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+
+  @@map("konfigurasi_sekolah")
+}
+
+// ─────────────────────────────────────────────
+// SEKRETARIS
+// ─────────────────────────────────────────────
+
+model Sekretaris {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  kelasId   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kelas     Kelas    @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+
+  @@map("sekretaris")
+}
+
+// ─────────────────────────────────────────────
+// KELAS
+// ─────────────────────────────────────────────
+
+model Kelas {
+  id         String   @id @default(cuid())
+  sekolahId  String
+  nama       String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sekolah    Sekolah    @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  siswa      SiswaKelas[]
+  sekretaris Sekretaris?
+  absensi    Absensi[]
+
+  @@unique([sekolahId, nama])
+  @@map("kelas")
+}
+
+// ─────────────────────────────────────────────
+// SISWA
+// ─────────────────────────────────────────────
+
+model Siswa {
+  id           String   @id @default(cuid())
+  sekolahId    String
+  nis          String
+  nama         String
+  jenisKelamin String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sekolah      Sekolah      @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  kelas        SiswaKelas[]
+  absensi      Absensi[]
+
+  @@unique([sekolahId, nis])
+  @@map("siswa")
+}
+
+// ─────────────────────────────────────────────
+// SISWA <-> KELAS
+// ─────────────────────────────────────────────
+
+model SiswaKelas {
+  id            String    @id @default(cuid())
+  siswaId       String
+  kelasId       String
+  nomorAbsen    Int
+  tanggalMasuk  DateTime  @default(now())
+  tanggalKeluar DateTime?
+  createdAt     DateTime  @default(now())
+
+  siswa         Siswa     @relation(fields: [siswaId], references: [id], onDelete: Cascade)
+  kelas         Kelas     @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+
+  @@map("siswa_kelas")
+}
+
+// ─────────────────────────────────────────────
+// TAHUN AJARAN
+// ─────────────────────────────────────────────
+
+model TahunAjaran {
+  id        String     @id @default(cuid())
+  sekolahId String
+  nama      String
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  sekolah   Sekolah    @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  semester  Semester[]
+
+  @@unique([sekolahId, nama])
+  @@map("tahun_ajaran")
+}
+
+// ─────────────────────────────────────────────
+// SEMESTER
+// ─────────────────────────────────────────────
+
+model Semester {
+  id             String      @id @default(cuid())
+  tahunAjaranId  String
+  nama           String
+  tanggalMulai   DateTime
+  tanggalSelesai DateTime
+  isActive       Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  tahunAjaran    TahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+
+  @@map("semester")
+}
+
+// ─────────────────────────────────────────────
+// HARI LIBUR
+// ─────────────────────────────────────────────
+
+model HariLibur {
+  id         String   @id @default(cuid())
+  sekolahId  String
+  tanggal    DateTime @db.Date
+  keterangan String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sekolah    Sekolah  @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+
+  @@unique([sekolahId, tanggal])
+  @@map("hari_libur")
+}
+
+// ─────────────────────────────────────────────
+// ABSENSI
+// ─────────────────────────────────────────────
+
+model Absensi {
+  id         String        @id @default(cuid())
+  sekolahId  String
+  kelasId    String
+  siswaId    String
+  tanggal    DateTime      @db.Date
+  status     StatusAbsensi
+  keterangan String?
+  inputOleh  String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  sekolah    Sekolah       @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  kelas      Kelas         @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  siswa      Siswa         @relation(fields: [siswaId], references: [id], onDelete: Cascade)
+
+  @@unique([siswaId, tanggal])
+  @@index([sekolahId, kelasId, tanggal])
+  @@index([siswaId, tanggal])
+  @@map("absensi")
+}
