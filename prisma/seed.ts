@@ -1,47 +1,33 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
+import bcrypt from "bcryptjs";
 
 const neonAdapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter: neonAdapter });
 
-const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
-  user: {
-    additionalFields: {
-      role: { type: "string", required: true, defaultValue: "SEKRETARIS", input: false },
-      isActive: { type: "boolean", required: true, defaultValue: true, input: false },
-      sekolahId: { type: "string", required: false, input: false },
-    },
-  },
-});
-
 async function main() {
-  // Buat user developer via better-auth API internal
-  const ctx = await auth.api.signUpEmail({
-    body: {
+  const hashedPassword = await bcrypt.hash("haqqi123", 12);
+
+  const user = await prisma.user.upsert({
+    where: { email: "developer@kiharuworks.my.id" },
+    update: {
+      password: hashedPassword,
+      role: "DEVELOPER",
+      isActive: true,
+    },
+    create: {
       name: "Haruki",
       email: "developer@kiharuworks.my.id",
-      password: "haqqi123",
+      password: hashedPassword,
+      role: "DEVELOPER",
+      isActive: true,
     },
   });
 
-  // Update role jadi DEVELOPER
-  await prisma.user.update({
-    where: { email: "developer@kiharuworks.my.id" },
-    data: { role: "DEVELOPER" },
-  });
-
-  console.log("✅ Developer user created:");
-  console.log("   Email   : developer@kiharuworks.my.id");
+  console.log("✅ Developer user seeded:");
+  console.log("   Email   :", user.email);
   console.log("   Password: haqqi123");
-  console.log("   Role    : DEVELOPER");
+  console.log("   Role    :", user.role);
 }
 
 main()
