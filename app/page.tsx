@@ -14,16 +14,35 @@ export default function HomePage() {
   const blobRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Reveal on scroll
+    // Reveal on scroll — dua arah (fade in & fade out)
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) e.target.classList.add("visible");
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+          } else {
+            e.target.classList.remove("visible");
+          }
         });
       },
       { threshold: 0.1 }
     );
     document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+    // Navbar shadow saat scroll
+    const nav = document.querySelector(".nav") as HTMLElement | null;
+    function handleNavScroll() {
+      if (!nav) return;
+      if (window.scrollY > 10) {
+        nav.style.boxShadow = "0 2px 20px rgba(0,0,0,0.08)";
+        nav.style.background = "rgba(255,255,255,0.85)";
+      } else {
+        nav.style.boxShadow = "";
+        nav.style.background = "rgba(255,255,255,0.55)";
+      }
+    }
+    window.addEventListener("scroll", handleNavScroll, { passive: true });
+    handleNavScroll();
 
     // Count up animation
     function countUp(el: HTMLElement, target: number) {
@@ -90,11 +109,16 @@ export default function HomePage() {
       observer.disconnect();
       statsObserver.disconnect();
       mockupObserver.disconnect();
+      window.removeEventListener("scroll", handleNavScroll);
     };
   }, []);
 
   function scrollToSection(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    const el = document.getElementById(id);
+    if (!el) return;
+    const navHeight = (document.querySelector(".nav") as HTMLElement)?.offsetHeight ?? 70;
+    const top = el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+    window.scrollTo({ top, behavior: "smooth" });
   }
 
   function toggleFaq(el: HTMLElement) {
@@ -108,9 +132,10 @@ export default function HomePage() {
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#dbeafe 0%,#ede9fe 40%,#fce7f3 70%,#e0f2fe 100%);min-height:100vh;overflow-x:hidden}
+        body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#dbeafe 0%,#ede9fe 40%,#fce7f3 70%,#e0f2fe 100%);min-height:100vh;overflow-x:hidden}
 
         .blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.35;animation:blobMove 8s ease-in-out infinite;pointer-events:none;z-index:0}
         .blob1{width:400px;height:400px;background:#93c5fd;top:-100px;left:-100px;animation-delay:0s}
@@ -119,8 +144,8 @@ export default function HomePage() {
         @keyframes blobMove{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-20px) scale(1.05)}66%{transform:translate(-15px,15px) scale(0.97)}}
 
         .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(255,255,255,0.55);backdrop-filter:blur(24px);border-bottom:0.5px solid rgba(255,255,255,0.7);transition:all 0.3s}
-        .nav-brand{font-size:15px;font-weight:600;color:#1e3a5f}
-        .nav-brand span{color:#94a3b8;font-weight:400}
+        .nav-brand{font-size:15px;font-weight:700;color:#1e3a5f;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-0.3px}
+        .nav-brand span{color:#94a3b8;font-weight:400;font-family:'Inter',sans-serif}
         .nav-links{display:flex;gap:28px}
         .nav-link{font-size:13px;color:#475569;cursor:pointer;transition:color 0.2s;text-decoration:none;background:none;border:none}
         .nav-link:hover{color:#3b82f6}
@@ -134,7 +159,7 @@ export default function HomePage() {
         .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.65);border:0.5px solid rgba(99,102,241,0.25);border-radius:20px;padding:5px 14px;font-size:12px;color:#4f46e5;margin-bottom:28px;backdrop-filter:blur(12px);animation:fadeDown 0.6s ease both}
         .pulse-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;flex-shrink:0}
         @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.3)}}
-        .hero h1{font-size:52px;font-weight:700;color:#0f172a;line-height:1.1;margin-bottom:20px;animation:fadeUp 0.7s ease 0.1s both;letter-spacing:-1px}
+        .hero h1{font-size:52px;font-weight:800;color:#0f172a;line-height:1.1;margin-bottom:20px;animation:fadeUp 0.7s ease 0.1s both;letter-spacing:-1.5px;font-family:'Plus Jakarta Sans',sans-serif}
         .hero h1 .grad{background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
         .hero-sub{font-size:17px;color:#475569;max-width:500px;margin:0 auto 40px;line-height:1.7;animation:fadeUp 0.7s ease 0.2s both}
         .hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.7s ease 0.3s both}
@@ -185,7 +210,7 @@ export default function HomePage() {
         .stat-n{font-size:28px;font-weight:700;color:#1e3a5f;line-height:1}
         .stat-l{font-size:11px;color:#94a3b8;margin-top:4px}
 
-        .section{position:relative;z-index:1;padding:0 40px 60px}
+        .section{position:relative;z-index:1;padding:80px 40px 60px}
         .sec-label{font-size:11px;font-weight:600;color:#6366f1;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px}
         .sec-title{font-size:28px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-0.5px}
         .sec-sub{font-size:14px;color:#64748b;margin-bottom:36px;line-height:1.6}
@@ -229,7 +254,7 @@ export default function HomePage() {
         .faq-item.open .faq-a{max-height:120px;padding:0 20px 16px}
         .faq-item.open .faq-arrow{transform:rotate(180deg)}
 
-        .order-outer{text-align:center;padding:0 40px 60px;position:relative;z-index:1}
+        .order-outer{text-align:center;padding:80px 40px 60px;position:relative;z-index:1}
         .order-card{background:rgba(255,255,255,0.65);backdrop-filter:blur(24px);border:0.5px solid rgba(255,255,255,0.9);border-radius:28px;padding:48px 40px;max-width:560px;margin:0 auto;box-shadow:0 16px 60px rgba(99,102,241,0.12)}
         .order-eyebrow{font-size:11px;font-weight:600;color:#6366f1;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px}
         .order-title{font-size:32px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-0.5px}
@@ -265,14 +290,14 @@ export default function HomePage() {
           .float-b{font-size:11px;padding:8px 12px}
           .stats{margin:0 16px 40px;flex-wrap:wrap}
           .stat{min-width:50%;border-right:none;border-bottom:0.5px solid rgba(0,0,0,0.06)}
-          .section{padding:0 20px 48px}
+          .section{padding:60px 20px 48px}
           .feat-grid{grid-template-columns:1fr}
           .vs-wrap{grid-template-columns:1fr}
           .steps-wrap{flex-direction:column}
           .step-card:first-child{border-radius:20px 20px 0 0}
           .step-card:last-child{border-radius:0 0 20px 20px}
           .step-card+.step-card{border-left:0.5px solid rgba(255,255,255,0.85);border-top:none}
-          .order-outer{padding:0 16px 80px}
+          .order-outer{padding:60px 16px 80px}
           .order-card{padding:32px 20px}
           .order-title{font-size:24px}
           .footer{flex-direction:column;gap:8px;text-align:center;padding:20px}
