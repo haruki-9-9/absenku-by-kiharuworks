@@ -44,6 +44,19 @@ export default function HomePage() {
     window.addEventListener("scroll", handleNavScroll, { passive: true });
     handleNavScroll();
 
+    // Tombol scroll-to-top: muncul setelah scroll melewati hero
+    const toTopBtn = document.querySelector(".to-top-btn") as HTMLElement | null;
+    function handleToTopVisibility() {
+      if (!toTopBtn) return;
+      if (window.scrollY > 500) {
+        toTopBtn.classList.add("visible");
+      } else {
+        toTopBtn.classList.remove("visible");
+      }
+    }
+    window.addEventListener("scroll", handleToTopVisibility, { passive: true });
+    handleToTopVisibility();
+
     // Count up animation
     function countUp(el: HTMLElement, target: number) {
       let current = 0;
@@ -110,6 +123,7 @@ export default function HomePage() {
       statsObserver.disconnect();
       mockupObserver.disconnect();
       window.removeEventListener("scroll", handleNavScroll);
+      window.removeEventListener("scroll", handleToTopVisibility);
     };
   }, []);
 
@@ -119,6 +133,10 @@ export default function HomePage() {
     const navHeight = (document.querySelector(".nav") as HTMLElement)?.offsetHeight ?? 70;
     const top = el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
     window.scrollTo({ top, behavior: "smooth" });
+  }
+
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function toggleFaq(el: HTMLElement) {
@@ -275,6 +293,11 @@ export default function HomePage() {
         .sticky-wa{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:200;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:28px;padding:13px 24px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 8px 28px rgba(34,197,94,0.4);align-items:center;gap:8px;white-space:nowrap;text-decoration:none;transition:all 0.25s}
         .sticky-wa:hover{transform:translateX(-50%) translateY(-2px);box-shadow:0 12px 36px rgba(34,197,94,0.5)}
 
+        /* Scroll to top button */
+        .to-top-btn{position:fixed;bottom:24px;right:24px;z-index:200;width:44px;height:44px;border-radius:50%;border:0.5px solid rgba(100,120,200,0.25);background:rgba(255,255,255,0.75);backdrop-filter:blur(16px);color:#3b5a8a;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.1);opacity:0;visibility:hidden;transform:translateY(8px);transition:all 0.25s}
+        .to-top-btn.visible{opacity:1;visibility:visible;transform:translateY(0)}
+        .to-top-btn:hover{background:rgba(255,255,255,0.95);transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,0.25);color:#3b82f6}
+
         @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
         .reveal{opacity:0;transform:translateY(28px);transition:opacity 0.6s ease,transform 0.6s ease}
@@ -321,6 +344,19 @@ export default function HomePage() {
         Chat via WhatsApp
       </a>
 
+      {/* Scroll to top */}
+      <button
+        type="button"
+        className="to-top-btn"
+        onClick={scrollToTop}
+        aria-label="Scroll ke atas"
+      >
+        <svg style={{ width: 18, height: 18 }} viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M14.78 9.78a.75.75 0 01-1.06 0L10 6.06 6.28 9.78a.75.75 0 01-1.06-1.06l4.25-4.25a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06z" clipRule="evenodd" />
+          <path fillRule="evenodd" d="M10 4.5a.75.75 0 01.75.75v10a.75.75 0 01-1.5 0v-10A.75.75 0 0110 4.5z" clipRule="evenodd" />
+        </svg>
+      </button>
+
       <div>
         {/* Navbar */}
         <nav className="nav">
@@ -328,8 +364,8 @@ export default function HomePage() {
           <div className="nav-links">
             <button className="nav-link" onClick={() => scrollToSection("fitur")}>Fitur</button>
             <button className="nav-link" onClick={() => scrollToSection("cara-kerja")}>Cara Kerja</button>
-            <button className="nav-link" onClick={() => scrollToSection("harga")}>Harga</button>
             <button className="nav-link" onClick={() => scrollToSection("faq")}>FAQ</button>
+            <button className="nav-link" onClick={() => scrollToSection("harga")}>Harga</button>
           </div>
           <div className="nav-actions">
             <button className="btn-ghost" onClick={() => router.push("/login")}>Masuk</button>
