@@ -95,23 +95,51 @@ absenku/
 │   │   └── actions.ts                    ✅ fetch langgananStatus saat login
 │   ├── langganan-habis/
 │   │   └── page.tsx                      ✅ halaman blokir jika expired
-│   └── developer/
-│       ├── layout.tsx                    ✅ glassmorphism + checkExpiredLangganan()
-│       ├── page.tsx                      ✅ overview glassmorphism
-│       └── sekolah/
-│           ├── page.tsx                  ✅ daftar sekolah glassmorphism
-│           ├── tambah/
-│           │   ├── page.tsx              ✅ glassmorphism
-│           │   └── actions.ts            ✅ buat sekolah + admin + langganan + konfigurasi
-│           └── [id]/
-│               └── page.tsx              ✅ detail sekolah + hapus sekolah
+│   ├── developer/
+│   │   ├── layout.tsx                    ✅ glassmorphism + checkExpiredLangganan()
+│   │   ├── page.tsx                      ✅ overview glassmorphism
+│   │   └── sekolah/
+│   │       ├── page.tsx                  ✅ daftar sekolah glassmorphism
+│   │       ├── tambah/
+│   │       │   ├── page.tsx              ✅ glassmorphism
+│   │       │   └── actions.ts            ✅ buat sekolah + admin + langganan + konfigurasi
+│   │       └── [id]/
+│   │           └── page.tsx              ✅ detail sekolah + hapus sekolah
+│   └── admin/
+│       ├── layout.tsx                    ✅ glassmorphism (sama dengan developer)
+│       ├── page.tsx                      ✅ overview — stat cards (kelas, siswa, pengguna, absensi hari ini) + info langganan
+│       ├── kelas/
+│       │   ├── page.tsx                  ✅ daftar kelas + kuota bar + toggle aktif/nonaktif
+│       │   ├── actions.ts                ✅ tambahKelasAction (cek kuota maxKelas) + toggleKelasAction
+│       │   └── tambah/
+│       │       ├── page.tsx
+│       │       └── TambahKelasForm.tsx   ✅ glassmorphism
+│       ├── siswa/
+│       │   ├── page.tsx                  ✅ daftar siswa + kolom kelas aktif + toggle aktif/nonaktif
+│       │   ├── actions.ts                ✅ tambahSiswaAction + toggleSiswaAction
+│       │   └── tambah/
+│       │       ├── page.tsx
+│       │       └── TambahSiswaForm.tsx   ✅ glassmorphism
+│       ├── pengguna/
+│       │   ├── page.tsx                  ✅ daftar pengguna (SEKRETARIS + WALI_KELAS) + toggle aktif/nonaktif
+│       │   ├── actions.ts                ✅ tambahPenggunaAction (buat user + sekretaris record) + togglePenggunaAction
+│       │   └── tambah/
+│       │       ├── page.tsx
+│       │       └── TambahPenggunaForm.tsx ✅ glassmorphism + dropdown role + dropdown kelas (conditional)
+│       └── konfigurasi/
+│           ├── page.tsx                  ✅ load konfigurasi dari DB
+│           ├── actions.ts                ✅ simpanKonfigurasiAction
+│           └── KonfigurasiForm.tsx       ✅ glassmorphism — jamLock, batasAlpa, zonaWaktu
 ├── components/
 │   ├── auth/
 │   │   └── login-form.tsx
-│   └── developer/
-│       ├── Header.tsx                    ✅ glassmorphism
-│       ├── Sidebar.tsx                   ✅ glassmorphism + height 100% + WebkitBackdropFilter
-│       └── TambahSekolahForm.tsx         ✅ glassmorphism + dropdown paket
+│   ├── developer/
+│   │   ├── Header.tsx                    ✅ glassmorphism
+│   │   ├── Sidebar.tsx                   ✅ glassmorphism + height 100% + WebkitBackdropFilter
+│   │   └── TambahSekolahForm.tsx         ✅ glassmorphism + dropdown paket
+│   └── admin/
+│       ├── Header.tsx                    ✅ glassmorphism — tampil nama+email user + logout
+│       └── Sidebar.tsx                   ✅ glassmorphism — nav: Overview, Kelas, Siswa, Pengguna, Konfigurasi
 ```
 
 ---
@@ -138,7 +166,7 @@ absenku/
 - `KonfigurasiSekolah` — sekolahId (unique), jamLock, batasAlpa, zonaWaktu
 - `User` — email, password, role, isActive, sekolahId
 - `Sekretaris` — userId (unique), kelasId (unique) — 1 sekretaris = 1 kelas
-- `Kelas` — sekolahId, nama, isActive; unique [sekolahId, nama]
+- `Kelas` — sekolahId, **tahunAjaranId**, nama, isActive; unique [sekolahId, tahunAjaranId, nama] — nama kelas tidak mengandung tahun (misal 'X TKJ'), tahun ajaran jadi konteks/filter
 - `Siswa` — sekolahId, nis, nama, jenisKelamin, isActive; unique [sekolahId, nis]
 - `SiswaKelas` — siswaId, kelasId, nomorAbsen, tanggalMasuk, tanggalKeluar
 - `TahunAjaran` — sekolahId, nama, isActive
@@ -199,17 +227,31 @@ Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
 - ✅ Halaman detail sekolah (`/developer/sekolah/[id]`) — info, stat, user, hapus sekolah
 - ✅ Auto-expired langganan (`lib/langganan/check-expired.ts`)
 - ✅ Halaman blokir expired (`/langganan-habis`)
+- ✅ **Dashboard Admin Sekolah** (`/admin`) — semua glassmorphism:
+  - ✅ Layout + Sidebar (Overview, Kelas, Siswa, Pengguna, Konfigurasi) + Header
+  - ✅ Overview — stat cards + info langganan + warning sisa hari
+  - ✅ Kelola Kelas — list + kuota bar + toggle aktif/nonaktif + enforcement `maxKelas` saat tambah/aktifkan
+  - ✅ Kelola Siswa — list + kolom kelas aktif + toggle aktif/nonaktif
+  - ✅ Kelola Pengguna — list SEKRETARIS & WALI_KELAS + tambah (buat user + sekretaris record) + toggle aktif/nonaktif
+  - ✅ Konfigurasi — jamLock, batasAlpa, zonaWaktu (WIB/WITA/WIT)
 
 ---
 
 ## Yang Belum Dikerjakan ⬜
 
-- [ ] **Dashboard Admin Sekolah** (`/admin`) — overview, kelola kelas, kelola siswa, kelola user, konfigurasi ← **NEXT**
-- [ ] Enforcement kuota kelas saat tambah kelas (cek `maxKelas` dari langganan)
-- [ ] Dashboard Sekretaris (`/sekretaris`) — input absensi harian + jam lock
-- [ ] Dashboard Wali Kelas (`/wali`) — lihat rekap
-- [ ] Manajemen langganan dari dashboard developer (`/developer/langganan`)
-- [ ] Rekap bulanan/semester + export PDF
+- [ ] **Import siswa bulk via Excel** () — template dinamis + validasi per baris ← **NEXT**
+- [ ] **Dashboard Sekretaris** () — input absensi harian + jam lock
+- [ ] **Schema tambahan**: `TahunAjaran`, `Semester`, `HariLibur` + relasi `Kelas` → `TahunAjaran` (fondasi rekap & kenaikan kelas)
+- [ ] Rekap bulanan — grid H/S/I/A per tanggal + warna
+- [ ] Rekap semester — ringkasan per bulan
+- [ ] Export Excel rekap (dengan warna sel)
+- [ ] Form cetak PDF (F4, mingguan) — menunggu contoh format dari Haru
+- [ ] Ganti password sendiri (sekretaris & admin)
+- [ ] Reset password sekretaris oleh admin
+- [ ] Dashboard admin — widget real-time (status absensi hari ini, % kehadiran, alpa terbanyak)
+- [ ] Laporan siswa bermasalah (alpa > batasAlpa)
+- [ ] Dashboard Wali Kelas () — lihat rekap saja
+- [ ] Manajemen langganan dari dashboard developer ()
 
 ---
 
@@ -225,3 +267,73 @@ Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
 8. Selalu pakai inline style, jangan Tailwind class di halaman dashboard
 9. Hover effect pakai `<style>` tag + className, bukan onMouseEnter/onMouseLeave
 10. Di akhir setiap sesi, update CLAUDE_PROMPT.md ini sesuai progres terbaru
+
+---
+
+## Model Bisnis & Onboarding
+
+- **Langsung berbayar** — tidak ada masa trial
+- **Fase awal (sekarang)**: onboarding manual — sekolah hubungi Developer via WA, Developer buatkan akun, konfirmasi pembayaran manual
+- **Fase berikutnya**: self-service — sekolah daftar + bayar sendiri, akun otomatis aktif (arsitektur sudah siap, fitur belum dibangun)
+- **Retensi data**: data sekolah disimpan **30 hari** setelah langganan expired, lalu dihapus permanen. Akses akun langsung diblokir di hari langganan habis (via middleware)
+- **Export data**: sekolah bisa export seluruh data kapan saja sebelum berhenti berlangganan
+
+---
+
+## Aturan Bisnis Penting
+
+### Input Absensi (Sekretaris)
+- 1 sekretaris = 1 kelas (ditugaskan admin), kelas otomatis saat login
+- Hanya bisa input/edit absensi **hari ini saja**
+- Setelah **jam lock** → sekretaris tidak bisa ubah
+- **Admin sekolah bypass lock** — bisa edit tanggal apapun kapan saja
+
+### Manajemen Siswa
+- Tambah manual ✅ sudah ada
+- Import bulk via Excel ⬜ belum:
+  - Template di-generate dinamis (daftar kelas aktif sebagai dropdown kolom "Kelas")
+  - Kolom: No, Nama Siswa, NIS, Jenis Kelamin, Kelas
+  - Validasi per baris — error dilaporkan, baris valid tetap diimport
+- Nonaktifkan siswa ✅ sudah ada
+- Siswa pindah kelas: absensi lama tetap terikat kelas lama (via `SiswaKelas`)
+
+### Kenaikan Kelas
+- Tiap tahun ajaran baru, admin **buat ulang kelas** (nama sama, tahun ajaran berbeda) — "X TKJ" di 2024/2025 dan "X TKJ" di 2025/2026 adalah dua record berbeda
+- Fitur **Proses Kenaikan Kelas** (per kelas, setelah semester 2 selesai):
+  1. Admin klik "Proses Kenaikan Kelas" di kelas X
+  2. Muncul daftar siswa — admin centang siapa naik, siapa tidak
+  3. Admin pilih kelas tujuan (misal XI TKJ tahun ajaran baru yang sudah dibuat)
+  4. Submit → siswa naik: `SiswaKelas` baru di kelas tujuan dibuat, `tanggalKeluar` di kelas lama terisi
+  5. Siswa tidak naik: tetap di kelas lama (tahun ajaran baru) atau dinonaktifkan
+- Data absensi lama **tidak berubah** — tetap terikat ke `SiswaKelas` lama
+
+### Rekap & Export
+- **Rekap bulanan** — grid baris=siswa, kolom=tanggal 1–31
+  - H = "H" (no bg), S = "S" bg pink, I = "I" bg biru, A = "A" bg merah
+  - Sel kosong = belum diisi, hari libur = bg abu-abu
+  - Kolom total S/I/A di kanan
+- **Rekap semester** — ringkasan per bulan, grand total di kanan, rentang dari `TahunAjaran`+`Semester`
+- **Export Excel** — format sama dengan tampilan layar + warna sel
+- **Form cetak PDF** — F4, layout mingguan, header otomatis, daftar siswa urut nomor absen + kolom tanda tangan per hari
+- Format PDF & rekap detail **menunggu contoh dari Haru**
+
+### Dashboard Admin — Widget Real-time
+- Kelas yang sudah/belum input absensi hari ini
+- Persentase kehadiran minggu ini
+- Siswa alpa terbanyak bulan ini
+- Laporan siswa bermasalah: alpa > `batasAlpa`
+
+### Keamanan Akun
+- Sekretaris & admin sekolah bisa **ganti password sendiri**
+- Admin sekolah bisa **reset password sekretaris** (tanpa email — MVP)
+
+---
+
+## Fitur Fase Berikutnya (Bukan MVP)
+
+- Wali Kelas (`/wali`) — lihat rekap saja
+- Self-service onboarding (daftar + bayar sendiri)
+- Notifikasi/reminder ke sekretaris (PWA/WhatsApp/email)
+- Multi-admin per sekolah
+- Log aktivitas (audit trail)
+- PWA

@@ -9,29 +9,31 @@ export async function tambahKelasAction(
   formData: FormData
 ) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "ADMIN_SEKOLAH" || !user.sekolahId) {
+  if (!user || user.role !== "ADMIN_SEKOLAH" || !user.sekolahId)
     return { success: false, message: "Tidak terautentikasi." };
-  }
 
   const nama = String(formData.get("nama") || "").trim();
-  if (!nama) {
-    return { success: false, message: "Nama kelas wajib diisi." };
-  }
+  const tahunAjaranId = String(formData.get("tahunAjaranId") || "").trim();
+
+  if (!nama) return { success: false, message: "Nama kelas wajib diisi." };
+  if (!tahunAjaranId) return { success: false, message: "Tahun ajaran wajib dipilih." };
 
   try {
+    // Validasi tahun ajaran milik sekolah ini
+    const tahunAjaran = await prisma.tahunAjaran.findFirst({
+      where: { id: tahunAjaranId, sekolahId: user.sekolahId },
+    });
+    if (!tahunAjaran) return { success: false, message: "Tahun ajaran tidak valid." };
+
     // Cek kuota kelas dari langganan
     const langganan = await prisma.langganan.findUnique({
       where: { sekolahId: user.sekolahId },
     });
-
-    if (!langganan) {
-      return { success: false, message: "Data langganan tidak ditemukan." };
-    }
+    if (!langganan) return { success: false, message: "Data langganan tidak ditemukan." };
 
     const kelasAktif = await prisma.kelas.count({
       where: { sekolahId: user.sekolahId, isActive: true },
     });
-
     if (kelasAktif >= langganan.maxKelas) {
       return {
         success: false,
@@ -39,21 +41,14 @@ export async function tambahKelasAction(
       };
     }
 
-    // Cek duplikat nama kelas
+    // Cek duplikat nama kelas di tahun ajaran yang sama
     const existing = await prisma.kelas.findUnique({
-      where: { sekolahId_nama: { sekolahId: user.sekolahId, nama } },
+      where: { sekolahId_tahunAjaranId_nama: { sekolahId: user.sekolahId, tahunAjaranId, nama } },
     });
-
-    if (existing) {
-      return { success: false, message: `Kelas "${nama}" sudah ada.` };
-    }
+    if (existing) return { success: false, message: `Kelas "${nama}" sudah ada di tahun ajaran ini.` };
 
     await prisma.kelas.create({
-      data: {
-        sekolahId: user.sekolahId,
-        nama,
-        isActive: true,
-      },
+      data: { sekolahId: user.sekolahId, tahunAjaranId, nama, isActive: true },
     });
   } catch (error) {
     console.error(error);
@@ -65,22 +60,18 @@ export async function tambahKelasAction(
 
 export async function toggleKelasAction(kelasId: string, isActive: boolean) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "ADMIN_SEKOLAH" || !user.sekolahId) {
+  if (!user || user.role !== "ADMIN_SEKOLAH" || !user.sekolahId)
     return { success: false, message: "Tidak terautentikasi." };
-  }
 
   try {
-    // Kalau mau diaktifkan lagi, cek kuota dulu
     if (isActive) {
       const langganan = await prisma.langganan.findUnique({
         where: { sekolahId: user.sekolahId },
       });
-
       if (langganan) {
         const kelasAktif = await prisma.kelas.count({
           where: { sekolahId: user.sekolahId, isActive: true },
         });
-
         if (kelasAktif >= langganan.maxKelas) {
           return {
             success: false,
@@ -90,11 +81,7 @@ export async function toggleKelasAction(kelasId: string, isActive: boolean) {
       }
     }
 
-    await prisma.kelas.update({
-      where: { id: kelasId },
-      data: { isActive },
-    });
-
+    await prisma.kelas.update({ where: { id: kelasId }, data: { isActive } });
     return { success: true, message: "" };
   } catch (error) {
     console.error(error);

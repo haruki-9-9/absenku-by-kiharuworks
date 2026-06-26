@@ -196,19 +196,21 @@ model Sekretaris {
 // ─────────────────────────────────────────────
 
 model Kelas {
-  id         String   @id @default(cuid())
-  sekolahId  String
-  nama       String
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id            String   @id @default(cuid())
+  sekolahId     String
+  tahunAjaranId String
+  nama          String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  sekolah    Sekolah    @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
-  siswa      SiswaKelas[]
-  sekretaris Sekretaris?
-  absensi    Absensi[]
+  sekolah       Sekolah      @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
+  tahunAjaran   TahunAjaran  @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  siswa         SiswaKelas[]
+  sekretaris    Sekretaris?
+  absensi       Absensi[]
 
-  @@unique([sekolahId, nama])
+  @@unique([sekolahId, tahunAjaranId, nama])
   @@map("kelas")
 }
 
@@ -267,6 +269,7 @@ model TahunAjaran {
 
   sekolah   Sekolah    @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
   semester  Semester[]
+  kelas     Kelas[]
 
   @@unique([sekolahId, nama])
   @@map("tahun_ajaran")
