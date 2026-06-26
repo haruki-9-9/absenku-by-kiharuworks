@@ -8,7 +8,7 @@ Minta konfirmasi dulu sebelum mengerjakan sesuatu. Jangan langsung eksekusi tanp
 - **Nama aplikasi**: absenku
 - **Branding**: by KiharuWorks (tampil di UI)
 - **Tujuan**: Aplikasi SaaS absensi harian sekolah, dijual ke sekolah-sekolah
-- **Status**: MVP — sedang ditest, homepage + dashboard developer sudah selesai
+- **Status**: MVP — dashboard developer sudah selesai, sedang lanjut ke dashboard Admin Sekolah
 - **Lokasi project**: `C:\Users\HARU\Desktop\absenku`
 
 ---
@@ -16,7 +16,7 @@ Minta konfirmasi dulu sebelum mengerjakan sesuatu. Jangan langsung eksekusi tanp
 ## Stack Teknologi
 
 - **Framework**: Next.js 15 (App Router) + TypeScript
-- **Styling**: Tailwind CSS + inline style (untuk konsistensi desain)
+- **Styling**: Inline style (bukan Tailwind class) untuk semua halaman dashboard — untuk konsistensi
 - **ORM**: Prisma v7
 - **Database**: PostgreSQL via Neon (cloud, region: AWS Asia Pacific Singapore)
 - **Auth**: Custom JWT pakai `jose` + `bcryptjs` (bukan better-auth)
@@ -26,13 +26,16 @@ Minta konfirmasi dulu sebelum mengerjakan sesuatu. Jangan langsung eksekusi tanp
 
 ## Design System
 
-Seluruh halaman menggunakan gaya yang konsisten dengan homepage:
+Seluruh halaman dashboard menggunakan gaya glassmorphism yang konsisten:
 - **Background**: `linear-gradient(135deg, #e0e7ff 0%, #f0e6ff 30%, #fce7f3 60%, #e0f2fe 100%)`
-- **Card**: `background: rgba(255,255,255,0.65); backdropFilter: blur(24px); border: 0.5px solid rgba(255,255,255,0.9); borderRadius: 20px`
+- **Blob**: 2 radial gradient fixed di pojok kiri atas dan kanan bawah
+- **Card**: `background: rgba(255,255,255,0.65); backdropFilter: blur(24px); border: 0.5px solid rgba(255,255,255,0.9); borderRadius: 20px; boxShadow: 0 8px 32px rgba(99,102,241,0.08)`
 - **Warna aksen**: `#6366f1` (indigo) untuk active/primary
-- **Font**: sistem, tidak ada import khusus
-- **Sidebar & Header**: glassmorphism `rgba(255,255,255,0.55)` + `backdropFilter: blur(20px)`
-- Semua halaman dashboard pakai inline style, bukan Tailwind class, untuk konsistensi
+- **Sidebar & Header**: `background: rgba(255,255,255,0.55)` + `backdropFilter: blur(20px)` + `WebkitBackdropFilter: blur(20px)`
+- **Input field**: `background: rgba(255,255,255,0.6); border: 0.5px solid rgba(99,102,241,0.2); borderRadius: 10px; padding: 10px 14px`
+- **Tombol primary**: `background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); borderRadius: 12px; boxShadow: 0 4px 16px rgba(99,102,241,0.3)`
+- **PENTING**: Semua halaman dashboard pakai **inline style**, bukan Tailwind class. Hover effect pakai `<style>` tag + className
+- **PENTING**: Jangan pakai `onMouseEnter`/`onMouseLeave` di Server Component — gunakan CSS class
 
 ---
 
@@ -43,12 +46,22 @@ Seluruh halaman menggunakan gaya yang konsisten dengan homepage:
 - `lib/auth/get-current-user.ts` — ambil user dari session + Prisma
 - `lib/prisma.ts` — Prisma client singleton
 - `app/login/page.tsx` + `app/login/actions.ts` — halaman & server action login
-- `middleware.ts` — proteksi route per role via JWT verify
+- `middleware.ts` — proteksi route per role via JWT verify + cek langganan expired
 
 Cookie session: `absenku_session` (httpOnly, sameSite strict, 7 hari)
 
-### `.env` yang Dibutuhkan
+### SessionPayload (terbaru)
+```ts
+type SessionPayload = {
+  userId: string;
+  email: string;
+  role: "DEVELOPER" | "ADMIN_SEKOLAH" | "SEKRETARIS" | "WALI_KELAS";
+  sekolahId: string | null;
+  langgananStatus: "AKTIF" | "EXPIRED" | "NONAKTIF" | null;
+}
+```
 
+### `.env` yang Dibutuhkan
 ```
 DATABASE_URL="postgresql://..."     ← dari Neon
 AUTH_SECRET="..."                   ← random string min 32 karakter
@@ -61,6 +74,7 @@ AUTH_SECRET="..."                   ← random string min 32 karakter
 ```
 absenku/
 ├── .env
+├── middleware.ts                         ✅ proteksi role + redirect expired
 ├── prisma.config.ts
 ├── prisma/
 │   ├── schema.prisma
@@ -68,31 +82,36 @@ absenku/
 │   └── migrations/
 ├── lib/
 │   ├── auth/
-│   │   ├── session.ts
+│   │   ├── session.ts                    ✅ include langgananStatus di payload
 │   │   ├── password.ts
 │   │   └── get-current-user.ts
+│   ├── langganan/
+│   │   └── check-expired.ts              ✅ helper auto-update status EXPIRED
 │   └── prisma.ts
 ├── app/
-│   ├── page.tsx                ← Homepage (landing page) ✅
+│   ├── page.tsx                          ✅ Homepage (landing page)
 │   ├── login/
 │   │   ├── page.tsx
-│   │   └── actions.ts
+│   │   └── actions.ts                    ✅ fetch langgananStatus saat login
+│   ├── langganan-habis/
+│   │   └── page.tsx                      ✅ halaman blokir jika expired
 │   └── developer/
-│       ├── layout.tsx          ✅ redesign glassmorphism
-│       ├── page.tsx            ✅ redesign glassmorphism
+│       ├── layout.tsx                    ✅ glassmorphism + checkExpiredLangganan()
+│       ├── page.tsx                      ✅ overview glassmorphism
 │       └── sekolah/
-│           ├── page.tsx        ✅ updated + kolom paket
-│           └── tambah/
-│               ├── page.tsx
-│               └── actions.ts  ✅ updated paket + maxKelas
+│           ├── page.tsx                  ✅ daftar sekolah glassmorphism
+│           ├── tambah/
+│           │   ├── page.tsx              ✅ glassmorphism
+│           │   └── actions.ts            ✅ buat sekolah + admin + langganan + konfigurasi
+│           └── [id]/
+│               └── page.tsx              ✅ detail sekolah + hapus sekolah
 ├── components/
 │   ├── auth/
 │   │   └── login-form.tsx
 │   └── developer/
-│       ├── Header.tsx          ✅ redesign glassmorphism
-│       ├── Sidebar.tsx         ✅ redesign glassmorphism
-│       └── TambahSekolahForm.tsx ✅ updated dropdown paket
-└── middleware.ts
+│       ├── Header.tsx                    ✅ glassmorphism
+│       ├── Sidebar.tsx                   ✅ glassmorphism + height 100% + WebkitBackdropFilter
+│       └── TambahSekolahForm.tsx         ✅ glassmorphism + dropdown paket
 ```
 
 ---
@@ -103,24 +122,7 @@ absenku/
 - `Role`: `DEVELOPER`, `ADMIN_SEKOLAH`, `SEKRETARIS`, `WALI_KELAS`
 - `StatusAbsensi`: `H`, `S`, `I`, `A`
 - `StatusLangganan`: `AKTIF`, `EXPIRED`, `NONAKTIF`
-- `PaketLangganan`: `STARTER`, `BASIC`, `PRO`, `ENTERPRISE` ← baru ditambah
-
-### Model Langganan (terbaru)
-```prisma
-model Langganan {
-  id              String          @id @default(cuid())
-  sekolahId       String          @unique
-  paket           PaketLangganan  @default(STARTER)
-  maxKelas        Int             @default(6)
-  status          StatusLangganan @default(AKTIF)
-  tanggalMulai    DateTime
-  tanggalBerakhir DateTime
-  catatanAdmin    String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  sekolah         Sekolah         @relation(...)
-}
-```
+- `PaketLangganan`: `STARTER`, `BASIC`, `PRO`, `ENTERPRISE`
 
 ### maxKelas per paket
 | Paket | maxKelas |
@@ -130,33 +132,46 @@ model Langganan {
 | PRO | 24 |
 | ENTERPRISE | 9999 |
 
+### Model utama (ringkasan)
+- `Sekolah` — id, nama, logoUrl, alamat
+- `Langganan` — sekolahId (unique), paket, maxKelas, status, tanggalMulai, tanggalBerakhir
+- `KonfigurasiSekolah` — sekolahId (unique), jamLock, batasAlpa, zonaWaktu
+- `User` — email, password, role, isActive, sekolahId
+- `Sekretaris` — userId (unique), kelasId (unique) — 1 sekretaris = 1 kelas
+- `Kelas` — sekolahId, nama, isActive; unique [sekolahId, nama]
+- `Siswa` — sekolahId, nis, nama, jenisKelamin, isActive; unique [sekolahId, nis]
+- `SiswaKelas` — siswaId, kelasId, nomorAbsen, tanggalMasuk, tanggalKeluar
+- `TahunAjaran` — sekolahId, nama, isActive
+- `Semester` — tahunAjaranId, nama, tanggalMulai, tanggalSelesai, isActive
+- `HariLibur` — sekolahId, tanggal, keterangan
+- `Absensi` — sekolahId, kelasId, siswaId, tanggal, status (H/S/I/A), inputOleh
+
 ---
 
 ## Arsitektur User (4 Level)
 
 1. **Developer** → `/developer` — super admin, kelola semua sekolah & langganan
-2. **Admin Sekolah** → `/admin` — kelola kelas, siswa, konfigurasi, rekap, bypass jam lock
-3. **Sekretaris Kelas** → `/sekretaris` — input absensi harian (1 akun = 1 kelas, terkunci jam lock). Di UI disebut **"Petugas Absensi"** (bisa sekretaris kelas atau wali kelas yang ditunjuk)
-4. **Wali Kelas** → `/wali` — lihat rekap saja (belum dikerjakan)
+2. **Admin Sekolah** → `/admin` — kelola kelas, siswa, user, konfigurasi, rekap
+3. **Sekretaris** → `/sekretaris` — input absensi harian (1 akun = 1 kelas, terkunci jam lock). Di UI disebut **"Petugas Absensi"**
+4. **Wali Kelas** → `/wali` — lihat rekap saja
 
 Seed user developer: `developer@kiharuworks.my.id`
 
 ---
 
-## Homepage (app/page.tsx)
+## Logika Expired Langganan
 
-Section yang sudah ada:
-- **Hero** — headline + CTA WhatsApp
-- **Fitur** (`#fitur`) — 6 fitur utama
-- **Cara Kerja** (`#cara-kerja`) — 3 langkah
-- **FAQ** (`#faq`) — accordion
-- **Harga** (`#harga`) ✅ — 4 paket dengan toggle bulanan/tahunan
-- **CTA Order** (`#mulai`) — tombol ke WhatsApp
-
-Navbar sticky dengan scroll-spy. Auto scroll pakai `scrollIntoView` + `scroll-margin-top: 55px`.
-Nomor WA: `6283818900667`
+- Saat **login**: `actions.ts` cek real-time apakah `tanggalBerakhir < now()`, update DB jika perlu, simpan `langgananStatus` di JWT
+- Saat **developer buka dashboard**: `checkExpiredLangganan()` di layout update semua yang expired di DB
+- Saat **middleware** jalan: kalau `langgananStatus === "EXPIRED"` dan bukan DEVELOPER → redirect `/langganan-habis`
+- Halaman `/langganan-habis`: tampil pesan + tombol WA ke `6283818900667` + logout
 
 ---
+
+## Homepage (app/page.tsx)
+
+Section: Hero, Fitur (`#fitur`), Cara Kerja (`#cara-kerja`), FAQ (`#faq`), Harga (`#harga`), CTA Order (`#mulai`).
+Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
 
 ## Paket Harga
 
@@ -169,33 +184,32 @@ Nomor WA: `6283818900667`
 
 ---
 
-## Yang Sudah Dikerjakan
+## Yang Sudah Dikerjakan ✅
 
 - ✅ Init project + stack lengkap
-- ✅ Schema Prisma + migrations (termasuk `PaketLangganan` + `maxKelas`)
-- ✅ Auth custom JWT
-- ✅ Middleware proteksi route per role
+- ✅ Schema Prisma + migrations lengkap
+- ✅ Auth custom JWT + SessionPayload dengan langgananStatus
+- ✅ Middleware proteksi route per role + blokir expired
 - ✅ Halaman login
 - ✅ Seed user developer
-- ✅ Homepage lengkap (hero, fitur, cara kerja, FAQ, harga, CTA)
-- ✅ Dashboard developer — layout, sidebar, header (sudah redesign glassmorphism)
-- ✅ Halaman daftar sekolah (sudah tampilkan kolom paket)
-- ✅ Form tambah sekolah (sudah include pilih paket)
-- ✅ Overview developer (sudah redesign glassmorphism)
+- ✅ Homepage lengkap
+- ✅ Dashboard developer — layout, sidebar, header, overview (semua glassmorphism)
+- ✅ Halaman daftar sekolah (`/developer/sekolah`)
+- ✅ Halaman tambah sekolah (`/developer/sekolah/tambah`) — buat sekolah + admin + langganan + konfigurasi sekaligus
+- ✅ Halaman detail sekolah (`/developer/sekolah/[id]`) — info, stat, user, hapus sekolah
+- ✅ Auto-expired langganan (`lib/langganan/check-expired.ts`)
+- ✅ Halaman blokir expired (`/langganan-habis`)
 
 ---
 
-## Yang Belum Dikerjakan (Lanjut dari Sini)
+## Yang Belum Dikerjakan ⬜
 
-- [ ] **Halaman sekolah developer** (`app/developer/sekolah/page.tsx`) — redesign glassmorphism (file sudah disiapkan tapi belum dikerjakan di session ini)
-- [ ] Enforcement kuota kelas saat tambah kelas
-- [ ] Dashboard Admin Sekolah (`/admin`)
-- [ ] Dashboard Sekretaris (`/sekretaris`) + fitur input absensi
-- [ ] Dashboard Wali Kelas (`/wali`)
-- [ ] Rekap & export PDF
-- [ ] Manajemen siswa & kelas (dari sisi admin)
-- [ ] Manajemen langganan dari dashboard developer
-- [ ] Halaman detail sekolah (`/developer/sekolah/[id]`)
+- [ ] **Dashboard Admin Sekolah** (`/admin`) — overview, kelola kelas, kelola siswa, kelola user, konfigurasi ← **NEXT**
+- [ ] Enforcement kuota kelas saat tambah kelas (cek `maxKelas` dari langganan)
+- [ ] Dashboard Sekretaris (`/sekretaris`) — input absensi harian + jam lock
+- [ ] Dashboard Wali Kelas (`/wali`) — lihat rekap
+- [ ] Manajemen langganan dari dashboard developer (`/developer/langganan`)
+- [ ] Rekap bulanan/semester + export PDF
 
 ---
 
@@ -207,5 +221,7 @@ Nomor WA: `6283818900667`
 4. Bahasa komunikasi: **Bahasa Indonesia**
 5. Kirim file yang perlu diubah — jangan suruh Haru edit manual kalau bisa dihindari
 6. Jawaban singkat dan to the point
-7. Semua halaman baru harus mengikuti design system glassmorphism (lihat bagian Design System)
-EOF
+7. Semua halaman baru harus mengikuti design system glassmorphism
+8. Selalu pakai inline style, jangan Tailwind class di halaman dashboard
+9. Hover effect pakai `<style>` tag + className, bukan onMouseEnter/onMouseLeave
+10. Di akhir setiap sesi, update CLAUDE_PROMPT.md ini sesuai progres terbaru

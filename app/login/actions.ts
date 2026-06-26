@@ -24,6 +24,11 @@ export async function loginAction(
 
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        sekolah: {
+          include: { langganan: true },
+        },
+      },
     });
 
     if (!user || !user.isActive) {
@@ -36,33 +41,40 @@ export async function loginAction(
       return { success: false, message: "Email atau password salah." };
     }
 
+    // Ambil status langganan sekolah (null untuk DEVELOPER)
+    let langgananStatus: "AKTIF" | "EXPIRED" | "NONAKTIF" | null = null;
+
+    if (user.sekolah?.langganan) {
+      const l = user.sekolah.langganan;
+
+      // Cek expired secara real-time saat login
+      if (l.status === "AKTIF" && new Date(l.tanggalBerakhir) < new Date()) {
+        await prisma.langganan.update({
+          where: { id: l.id },
+          data: { status: "EXPIRED" },
+        });
+        langgananStatus = "EXPIRED";
+      } else {
+        langgananStatus = l.status;
+      }
+    }
+
     await createSession({
       userId: user.id,
       email: user.email,
       role: user.role,
       sekolahId: user.sekolahId ?? null,
+      langgananStatus,
     });
 
     // Redirect sesuai role
-    if (user.role === "DEVELOPER") {
-      redirect("/developer");
-    }
-
-    if (user.role === "ADMIN_SEKOLAH") {
-      redirect("/admin");
-    }
-
-    if (user.role === "SEKRETARIS") {
-      redirect("/sekretaris");
-    }
-
-    if (user.role === "WALI_KELAS") {
-      redirect("/wali");
-    }
+    if (user.role === "DEVELOPER") redirect("/developer");
+    if (user.role === "ADMIN_SEKOLAH") redirect("/admin");
+    if (user.role === "SEKRETARIS") redirect("/sekretaris");
+    if (user.role === "WALI_KELAS") redirect("/wali");
 
     redirect("/login");
   } catch (error) {
-    // redirect() melempar NEXT_REDIRECT secara internal — biarkan lewat
     if (
       error &&
       typeof error === "object" &&

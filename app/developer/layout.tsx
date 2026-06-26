@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/developer/Sidebar";
 import Header from "@/components/developer/Header";
+import { checkExpiredLangganan } from "@/lib/langganan/check-expired";
 
 export default async function DeveloperLayout({
   children,
@@ -14,8 +15,15 @@ export default async function DeveloperLayout({
     redirect("/login");
   }
 
+  // Cek & update langganan yang sudah expired setiap kali dashboard dibuka
+  await checkExpiredLangganan();
+
   return (
-    <div className="flex h-screen font-sans overflow-hidden" style={{
+    <div style={{
+      display: "flex",
+      height: "100vh",
+      overflow: "hidden",
+      position: "relative",
       background: "linear-gradient(135deg, #e0e7ff 0%, #f0e6ff 30%, #fce7f3 60%, #e0f2fe 100%)",
     }}>
       {/* Blob background */}
@@ -33,10 +41,21 @@ export default async function DeveloperLayout({
           bottom: -50, right: -50,
         }} />
       </div>
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden" style={{ position: "relative", zIndex: 1 }}>
+
+      <div style={{ width: 220, flexShrink: 0, position: "relative", zIndex: 10 }}>
+        <Sidebar />
+      </div>
+
+      <div style={{
+        flex: 1, minWidth: 0, display: "flex", flexDirection: "column",
+        overflow: "hidden", position: "relative", zIndex: 1,
+      }}>
         <Header user={user} />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main style={{
+          flex: 1, overflowY: "auto", padding: "28px 32px", background: "transparent",
+        }}>
+          {children}
+        </main>
       </div>
     </div>
   );

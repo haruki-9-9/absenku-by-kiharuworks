@@ -8,6 +8,7 @@ type SessionPayload = {
   email: string;
   role: "DEVELOPER" | "ADMIN_SEKOLAH" | "SEKRETARIS" | "WALI_KELAS";
   sekolahId: string | null;
+  langgananStatus: "AKTIF" | "EXPIRED" | "NONAKTIF" | null;
 };
 
 function getSecretKey() {
@@ -59,6 +60,7 @@ export async function getSession(): Promise<SessionPayload | null> {
       email: String(payload.email),
       role: payload.role as SessionPayload["role"],
       sekolahId: payload.sekolahId ? String(payload.sekolahId) : null,
+      langgananStatus: (payload.langgananStatus as SessionPayload["langgananStatus"]) ?? null,
     };
   } catch {
     return null;

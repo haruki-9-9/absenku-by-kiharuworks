@@ -16,22 +16,32 @@ async function getAllSekolah() {
 function StatusBadge({ status }: { status: string | null }) {
   if (!status) {
     return (
-      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
+      <span style={{
+        display: "inline-flex", alignItems: "center",
+        background: "rgba(148,163,184,0.15)", color: "#94a3b8",
+        borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 600,
+        border: "0.5px solid rgba(148,163,184,0.3)",
+      }}>
         Belum ada langganan
       </span>
     );
   }
 
-  const map: Record<string, string> = {
-    AKTIF: "bg-emerald-100 text-emerald-700",
-    EXPIRED: "bg-red-100 text-red-700",
-    NONAKTIF: "bg-slate-100 text-slate-500",
+  const map: Record<string, { bg: string; color: string; border: string }> = {
+    AKTIF:    { bg: "rgba(16,185,129,0.12)",  color: "#059669", border: "rgba(16,185,129,0.3)" },
+    EXPIRED:  { bg: "rgba(239,68,68,0.12)",   color: "#dc2626", border: "rgba(239,68,68,0.3)" },
+    NONAKTIF: { bg: "rgba(148,163,184,0.15)", color: "#94a3b8", border: "rgba(148,163,184,0.3)" },
   };
 
+  const s = map[status] ?? map.NONAKTIF;
+
   return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[status] ?? "bg-slate-100 text-slate-500"}`}
-    >
+    <span style={{
+      display: "inline-flex", alignItems: "center",
+      background: s.bg, color: s.color,
+      borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 600,
+      border: `0.5px solid ${s.border}`,
+    }}>
       {status}
     </span>
   );
@@ -39,131 +49,178 @@ function StatusBadge({ status }: { status: string | null }) {
 
 function PaketBadge({ paket }: { paket: string | null }) {
   if (!paket) return null;
-  const map: Record<string, string> = {
-    STARTER: "bg-slate-100 text-slate-600",
-    BASIC: "bg-blue-100 text-blue-700",
-    PRO: "bg-indigo-100 text-indigo-700",
-    ENTERPRISE: "bg-purple-100 text-purple-700",
+
+  const map: Record<string, { bg: string; color: string; border: string }> = {
+    STARTER:    { bg: "rgba(148,163,184,0.15)", color: "#64748b",  border: "rgba(148,163,184,0.3)" },
+    BASIC:      { bg: "rgba(59,130,246,0.12)",  color: "#2563eb",  border: "rgba(59,130,246,0.3)" },
+    PRO:        { bg: "rgba(99,102,241,0.12)",  color: "#4f46e5",  border: "rgba(99,102,241,0.3)" },
+    ENTERPRISE: { bg: "rgba(168,85,247,0.12)",  color: "#7c3aed",  border: "rgba(168,85,247,0.3)" },
   };
+
+  const s = map[paket] ?? map.STARTER;
+
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[paket] ?? "bg-slate-100 text-slate-500"}`}>
+    <span style={{
+      display: "inline-flex", alignItems: "center",
+      background: s.bg, color: s.color,
+      borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 600,
+      border: `0.5px solid ${s.border}`,
+    }}>
       {paket.charAt(0) + paket.slice(1).toLowerCase()}
     </span>
   );
 }
 
-
+export default async function SekolahPage() {
   const sekolahList = await getAllSekolah();
 
   return (
-    <div className="space-y-6">
-      {/* Page title */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800">Manajemen Sekolah</h1>
-          <p className="text-sm text-slate-500">
-            {sekolahList.length} sekolah terdaftar.
-          </p>
-        </div>
-        <Link
-          href="/developer/sekolah/tambah"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-95"
-        >
-          + Tambah Sekolah
-        </Link>
-      </div>
+    <>
+      <style>{`
+        .sekolah-row:hover { background: rgba(99,102,241,0.04); }
+        .detail-btn:hover { background: rgba(99,102,241,0.15) !important; }
+      `}</style>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        {sekolahList.length === 0 ? (
-          <div className="py-20 text-center">
-            <p className="text-sm font-medium text-slate-500">
-              Belum ada sekolah terdaftar.
-            </p>
-            <p className="mt-1 text-xs text-slate-400">
-              Klik &quot;Tambah Sekolah&quot; untuk mulai.
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        {/* Page header */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
+              Manajemen Sekolah
+            </h1>
+            <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>
+              {sekolahList.length} sekolah terdaftar.
             </p>
           </div>
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 text-left">
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Nama Sekolah
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Status
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Paket
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Kelas
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Siswa
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  User
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Terdaftar
-                </th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {sekolahList.map((sekolah) => (
-                <tr
-                  key={sekolah.id}
-                  className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors"
-                >
-                  <td className="px-5 py-3">
-                    <p className="text-sm font-semibold text-slate-800">
-                      {sekolah.nama}
-                    </p>
-                    {sekolah.alamat && (
-                      <p className="text-xs text-slate-400 truncate max-w-[200px]">
-                        {sekolah.alamat}
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-5 py-3">
-                    <StatusBadge status={sekolah.langganan?.status ?? null} />
-                  </td>
-                  <td className="px-5 py-3">
-                    <PaketBadge paket={sekolah.langganan?.paket ?? null} />
-                  </td>
-                  <td className="px-5 py-3 text-sm text-slate-600">
-                    {sekolah._count.kelas}
-                  </td>
-                  <td className="px-5 py-3 text-sm text-slate-600">
-                    {sekolah._count.siswa}
-                  </td>
-                  <td className="px-5 py-3 text-sm text-slate-600">
-                    {sekolah._count.users}
-                  </td>
-                  <td className="px-5 py-3 text-sm text-slate-400">
-                    {new Date(sekolah.createdAt).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <Link
-                      href={`/developer/sekolah/${sekolah.id}`}
-                      className="text-xs font-medium text-blue-600 hover:underline"
-                    >
-                      Detail →
-                    </Link>
-                  </td>
+          <Link
+            href="/developer/sekolah/tambah"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+              color: "#fff", borderRadius: 12, padding: "9px 18px",
+              fontSize: 13, fontWeight: 700, textDecoration: "none",
+              boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
+            }}
+          >
+            + Tambah Sekolah
+          </Link>
+        </div>
+
+        {/* Table card */}
+        <div style={{
+          background: "rgba(255,255,255,0.65)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          border: "0.5px solid rgba(255,255,255,0.9)",
+          borderRadius: 20,
+          boxShadow: "0 8px 32px rgba(99,102,241,0.08)",
+          overflow: "hidden",
+        }}>
+          {sekolahList.length === 0 ? (
+            <div style={{ padding: "80px 24px", textAlign: "center" }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 16, margin: "0 auto 16px",
+                background: "rgba(99,102,241,0.08)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 26,
+              }}>
+                🏫
+              </div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}>
+                Belum ada sekolah terdaftar.
+              </p>
+              <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+                Klik &quot;Tambah Sekolah&quot; untuk mulai.
+              </p>
+            </div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "0.5px solid rgba(99,102,241,0.1)" }}>
+                  {["Nama Sekolah", "Status", "Paket", "Kelas", "Siswa", "User", "Terdaftar", ""].map((col, i) => (
+                    <th key={i} style={{
+                      padding: "12px 20px",
+                      textAlign: i === 7 ? "right" : "left",
+                      fontSize: 10, fontWeight: 700,
+                      color: "#94a3b8", letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      background: "rgba(248,250,252,0.6)",
+                    }}>
+                      {col}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {sekolahList.map((sekolah, idx) => (
+                  <tr
+                    key={sekolah.id}
+                    className="sekolah-row"
+                    style={{
+                      borderBottom: idx < sekolahList.length - 1
+                        ? "0.5px solid rgba(99,102,241,0.06)"
+                        : "none",
+                      transition: "background 0.15s",
+                    }}
+                  >
+                    <td style={{ padding: "14px 20px" }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+                        {sekolah.nama}
+                      </p>
+                      {sekolah.alamat && (
+                        <p style={{
+                          fontSize: 11, color: "#94a3b8", marginTop: 2,
+                          maxWidth: 200, overflow: "hidden",
+                          textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>
+                          {sekolah.alamat}
+                        </p>
+                      )}
+                    </td>
+                    <td style={{ padding: "14px 20px" }}>
+                      <StatusBadge status={sekolah.langganan?.status ?? null} />
+                    </td>
+                    <td style={{ padding: "14px 20px" }}>
+                      <PaketBadge paket={sekolah.langganan?.paket ?? null} />
+                    </td>
+                    <td style={{ padding: "14px 20px", fontSize: 13, fontWeight: 600, color: "#334155" }}>
+                      {sekolah._count.kelas}
+                    </td>
+                    <td style={{ padding: "14px 20px", fontSize: 13, fontWeight: 600, color: "#334155" }}>
+                      {sekolah._count.siswa}
+                    </td>
+                    <td style={{ padding: "14px 20px", fontSize: 13, fontWeight: 600, color: "#334155" }}>
+                      {sekolah._count.users}
+                    </td>
+                    <td style={{ padding: "14px 20px", fontSize: 12, color: "#94a3b8" }}>
+                      {new Date(sekolah.createdAt).toLocaleDateString("id-ID", {
+                        day: "numeric", month: "short", year: "numeric",
+                      })}
+                    </td>
+                    <td style={{ padding: "14px 20px", textAlign: "right" }}>
+                      <Link
+                        href={`/developer/sekolah/${sekolah.id}`}
+                        className="detail-btn"
+                        style={{
+                          fontSize: 12, fontWeight: 600, color: "#6366f1",
+                          textDecoration: "none",
+                          padding: "5px 12px",
+                          background: "rgba(99,102,241,0.08)",
+                          borderRadius: 8,
+                          border: "0.5px solid rgba(99,102,241,0.2)",
+                          transition: "background 0.15s",
+                        }}
+                      >
+                        Detail →
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
