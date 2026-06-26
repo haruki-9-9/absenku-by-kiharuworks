@@ -32,6 +32,13 @@ enum StatusLangganan {
   NONAKTIF
 }
 
+enum PaketLangganan {
+  STARTER
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
 // ─────────────────────────────────────────────
 // BETTER AUTH TABLES
 // ─────────────────────────────────────────────
@@ -135,6 +142,8 @@ model Sekolah {
 model Langganan {
   id              String          @id @default(cuid())
   sekolahId       String          @unique
+  paket           PaketLangganan  @default(STARTER)
+  maxKelas        Int             @default(6)
   status          StatusLangganan @default(AKTIF)
   tanggalMulai    DateTime
   tanggalBerakhir DateTime

@@ -46,18 +46,21 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-56 flex-col border-r border-slate-200 bg-white">
+    <aside style={{
+      width: 220, display: "flex", flexDirection: "column",
+      background: "rgba(255,255,255,0.55)", backdropFilter: "blur(20px)",
+      borderRight: "0.5px solid rgba(255,255,255,0.9)",
+      position: "relative", zIndex: 10, flexShrink: 0,
+    }}>
       {/* Logo */}
-      <div className="flex h-16 items-center border-b border-slate-200 px-5">
-        <div>
-          <p className="text-sm font-bold text-slate-800">absenku</p>
-          <p className="text-[10px] text-slate-400">by KiharuWorks</p>
-        </div>
+      <div style={{ padding: "20px 20px 16px", borderBottom: "0.5px solid rgba(0,0,0,0.06)" }}>
+        <p style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>absenku</p>
+        <p style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500 }}>by KiharuWorks</p>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 space-y-0.5 p-3">
-        <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+      <nav style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
+        <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.12em", textTransform: "uppercase", padding: "0 10px", marginBottom: 6 }}>
           Menu
         </p>
         {navItems.map((item) => {
@@ -70,13 +73,15 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-              }`}
+              style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "9px 12px", borderRadius: 12, fontSize: 13, fontWeight: 500,
+                textDecoration: "none", transition: "all 0.2s",
+                background: isActive ? "rgba(99,102,241,0.12)" : "transparent",
+                color: isActive ? "#6366f1" : "#475569",
+              }}
             >
-              <span className={isActive ? "text-blue-600" : "text-slate-400"}>
+              <span style={{ color: isActive ? "#6366f1" : "#94a3b8", display: "flex" }}>
                 {item.icon}
               </span>
               {item.label}
@@ -86,10 +91,12 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-slate-200 p-3">
-        <div className="rounded-lg bg-blue-50 px-3 py-2.5">
-          <p className="text-[10px] font-semibold text-blue-700">Developer</p>
-          <p className="text-[10px] text-blue-500">KiharuWorks</p>
+      <div style={{ padding: "12px 10px", borderTop: "0.5px solid rgba(0,0,0,0.06)" }}>
+        <div style={{
+          background: "rgba(99,102,241,0.08)", borderRadius: 12, padding: "10px 12px",
+        }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "#6366f1" }}>Developer</p>
+          <p style={{ fontSize: 10, color: "#818cf8" }}>KiharuWorks</p>
         </div>
       </div>
     </aside>

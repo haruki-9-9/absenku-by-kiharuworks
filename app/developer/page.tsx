@@ -41,17 +41,25 @@ function StatCard({
   label,
   value,
   color,
+  bg,
 }: {
   label: string;
   value: number;
   color: string;
+  bg: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+    <div style={{
+      background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+      border: "0.5px solid rgba(255,255,255,0.9)", borderRadius: 20,
+      padding: "20px 24px", boxShadow: "0 8px 32px rgba(99,102,241,0.08)",
+    }}>
+      <p style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.12em", textTransform: "uppercase" }}>
         {label}
       </p>
-      <p className={`mt-2 text-3xl font-extrabold ${color}`}>{value}</p>
+      <p style={{ marginTop: 8, fontSize: 36, fontWeight: 800, color, letterSpacing: "-1px", lineHeight: 1 }}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -65,96 +73,60 @@ export default async function DeveloperPage() {
   const data = await getOverviewData();
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       {/* Page title */}
       <div>
-        <h1 className="text-xl font-bold text-slate-800">Overview</h1>
-        <p className="text-sm text-slate-500">
-          Ringkasan seluruh data absenku.
-        </p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>Overview</h1>
+        <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Ringkasan seluruh data absenku.</p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard
-          label="Total Sekolah"
-          value={data.totalSekolah}
-          color="text-slate-800"
-        />
-        <StatCard
-          label="Langganan Aktif"
-          value={data.sekolahAktif}
-          color="text-emerald-600"
-        />
-        <StatCard
-          label="Expired"
-          value={data.sekolahExpired}
-          color="text-red-500"
-        />
-        <StatCard
-          label="Total User"
-          value={data.totalUser}
-          color="text-blue-600"
-        />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <StatCard label="Total Sekolah" value={data.totalSekolah} color="#0f172a" bg="" />
+        <StatCard label="Langganan Aktif" value={data.sekolahAktif} color="#22c55e" bg="" />
+        <StatCard label="Expired" value={data.sekolahExpired} color="#ef4444" bg="" />
+        <StatCard label="Total User" value={data.totalUser} color="#6366f1" bg="" />
       </div>
 
       {/* Langganan mau habis */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-4">
-          <h2 className="text-sm font-semibold text-slate-800">
-            Langganan Mau Habis
-          </h2>
-          <p className="text-xs text-slate-400">
-            Sekolah dengan langganan berakhir dalam 30 hari ke depan.
-          </p>
+      <div style={{
+        background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+        border: "0.5px solid rgba(255,255,255,0.9)", borderRadius: 20,
+        boxShadow: "0 8px 32px rgba(99,102,241,0.08)", overflow: "hidden",
+      }}>
+        <div style={{ padding: "16px 24px", borderBottom: "0.5px solid rgba(0,0,0,0.06)" }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Langganan Mau Habis</h2>
+          <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>Sekolah dengan langganan berakhir dalam 30 hari ke depan.</p>
         </div>
 
         {data.sekolahMauHabis.length === 0 ? (
-          <div className="px-5 py-10 text-center">
-            <p className="text-sm text-slate-400">
-              Tidak ada langganan yang mau habis dalam 30 hari.
-            </p>
+          <div style={{ padding: "40px 24px", textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: "#94a3b8" }}>Tidak ada langganan yang mau habis dalam 30 hari.</p>
           </div>
         ) : (
-          <table className="w-full">
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr className="border-b border-slate-100 text-left">
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Sekolah
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Berakhir
-                </th>
-                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                  Sisa
-                </th>
+              <tr style={{ borderBottom: "0.5px solid rgba(0,0,0,0.06)" }}>
+                {["Sekolah", "Berakhir", "Sisa"].map((h) => (
+                  <th key={h} style={{ padding: "10px 24px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.1em", textTransform: "uppercase" }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {data.sekolahMauHabis.map((item) => {
                 const daysLeft = getDaysLeft(item.tanggalBerakhir);
                 return (
-                  <tr
-                    key={item.id}
-                    className="border-b border-slate-50 last:border-0"
-                  >
-                    <td className="px-5 py-3 text-sm font-medium text-slate-700">
-                      {item.sekolah.nama}
+                  <tr key={item.id} style={{ borderBottom: "0.5px solid rgba(0,0,0,0.04)" }}>
+                    <td style={{ padding: "12px 24px", fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{item.sekolah.nama}</td>
+                    <td style={{ padding: "12px 24px", fontSize: 13, color: "#64748b" }}>
+                      {new Date(item.tanggalBerakhir).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
                     </td>
-                    <td className="px-5 py-3 text-sm text-slate-500">
-                      {new Date(item.tanggalBerakhir).toLocaleDateString(
-                        "id-ID",
-                        { day: "numeric", month: "long", year: "numeric" }
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          daysLeft <= 7
-                            ? "bg-red-100 text-red-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
+                    <td style={{ padding: "12px 24px" }}>
+                      <span style={{
+                        display: "inline-flex", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600,
+                        background: daysLeft <= 7 ? "rgba(239,68,68,0.12)" : "rgba(245,158,11,0.12)",
+                        color: daysLeft <= 7 ? "#dc2626" : "#d97706",
+                      }}>
                         {daysLeft} hari
                       </span>
                     </td>

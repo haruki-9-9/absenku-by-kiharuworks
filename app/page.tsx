@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const WA_NUMBER = "6283818900667";
@@ -12,6 +12,7 @@ const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGE}`;
 export default function HomePage() {
   const router = useRouter();
   const blobRef = useRef<HTMLDivElement>(null);
+  const [pricingPeriod, setPricingPeriod] = useState<"bulanan" | "tahunan">("bulanan");
 
   useEffect(() => {
     // Reveal on scroll — dua arah (fade in & fade out)
@@ -130,7 +131,9 @@ export default function HomePage() {
   function scrollToSection(id: string) {
     const el = document.getElementById(id);
     if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const navHeight = (document.querySelector(".nav") as HTMLElement)?.offsetHeight ?? 70;
+    const top = el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+    window.scrollTo({ top, behavior: "smooth" });
   }
 
   function scrollToTop() {
@@ -150,7 +153,7 @@ export default function HomePage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
-        html{scroll-behavior:auto}
+        html{scroll-behavior:smooth}
         body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#dbeafe 0%,#ede9fe 40%,#fce7f3 70%,#e0f2fe 100%);min-height:100vh;overflow-x:hidden}
 
         .blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.35;animation:blobMove 8s ease-in-out infinite;pointer-events:none;z-index:0}
@@ -226,7 +229,7 @@ export default function HomePage() {
         .stat-n{font-size:28px;font-weight:700;color:#1e3a5f;line-height:1}
         .stat-l{font-size:11px;color:#94a3b8;margin-top:4px}
 
-        .section{position:relative;z-index:1;padding:48px 40px 60px;scroll-margin-top:80px}
+        .section{position:relative;z-index:1;padding:40px 40px 60px;scroll-margin-top:55px}
         .sec-label{font-size:11px;font-weight:600;color:#6366f1;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px}
         .sec-title{font-size:28px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-0.5px}
         .sec-sub{font-size:14px;color:#64748b;margin-bottom:36px;line-height:1.6}
@@ -270,7 +273,34 @@ export default function HomePage() {
         .faq-item.open .faq-a{max-height:120px;padding:0 20px 16px}
         .faq-item.open .faq-arrow{transform:rotate(180deg)}
 
-        .order-outer{text-align:center;padding:48px 40px 60px;position:relative;z-index:1;scroll-margin-top:80px}
+        .pricing-outer{padding:80px 40px 60px;position:relative;z-index:1;scroll-margin-top:55px}
+        .pricing-header{text-align:center;margin-bottom:48px}
+        .pricing-eyebrow{font-size:11px;font-weight:600;color:#6366f1;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:12px}
+        .pricing-title{font-size:36px;font-weight:700;color:#0f172a;letter-spacing:-0.5px;margin-bottom:10px}
+        .pricing-sub{font-size:15px;color:#64748b}
+        .pricing-toggle{display:inline-flex;background:rgba(255,255,255,0.6);border:0.5px solid rgba(255,255,255,0.9);border-radius:40px;padding:4px;gap:4px;margin-top:20px;backdrop-filter:blur(12px)}
+        .pricing-toggle-btn{padding:8px 20px;border-radius:32px;border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;background:transparent;color:#64748b}
+        .pricing-toggle-btn.active{background:#6366f1;color:#fff;box-shadow:0 4px 12px rgba(99,102,241,0.3)}
+        .pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1100px;margin:0 auto}
+        .pricing-card{background:rgba(255,255,255,0.65);backdrop-filter:blur(24px);border:0.5px solid rgba(255,255,255,0.9);border-radius:24px;padding:32px 24px;position:relative;box-shadow:0 8px 32px rgba(99,102,241,0.08);transition:transform 0.2s,box-shadow 0.2s}
+        .pricing-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(99,102,241,0.14)}
+        .pricing-card.popular{border:1.5px solid #6366f1;box-shadow:0 8px 40px rgba(99,102,241,0.2)}
+        .pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6366f1;color:#fff;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 14px;border-radius:20px;white-space:nowrap}
+        .pricing-plan{font-size:13px;font-weight:600;color:#6366f1;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px}
+        .pricing-price{font-size:30px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1}
+        .pricing-price span{font-size:14px;font-weight:400;color:#94a3b8}
+        .pricing-price-custom{font-size:22px;font-weight:700;color:#0f172a;margin-top:4px}
+        .pricing-quota{font-size:13px;color:#64748b;margin:10px 0 20px;padding-bottom:20px;border-bottom:1px solid rgba(0,0,0,0.06)}
+        .pricing-feats{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+        .pricing-feat{display:flex;align-items:center;gap:8px;font-size:12px;color:#334155}
+        .pricing-feat-check{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#22c55e);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;flex-shrink:0}
+        .pricing-cta{width:100%;padding:12px;border-radius:16px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;display:block;text-align:center}
+        .pricing-cta-primary{background:#6366f1;color:#fff;box-shadow:0 4px 16px rgba(99,102,241,0.3)}
+        .pricing-cta-primary:hover{background:#4f46e5;box-shadow:0 6px 20px rgba(99,102,241,0.4)}
+        .pricing-cta-outline{background:transparent;color:#6366f1;border:1.5px solid #6366f1 !important}
+        .pricing-cta-outline:hover{background:#6366f1;color:#fff}
+        .pricing-note{text-align:center;margin-top:20px;font-size:12px;color:#94a3b8}
+        .order-outer{text-align:center;padding:80px 40px 60px;position:relative;z-index:1}
         .order-card{background:rgba(255,255,255,0.65);backdrop-filter:blur(24px);border:0.5px solid rgba(255,255,255,0.9);border-radius:28px;padding:48px 40px;max-width:560px;margin:0 auto;box-shadow:0 16px 60px rgba(99,102,241,0.12)}
         .order-eyebrow{font-size:11px;font-weight:600;color:#6366f1;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px}
         .order-title{font-size:32px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-0.5px}
@@ -311,14 +341,17 @@ export default function HomePage() {
           .float-b{font-size:11px;padding:8px 12px}
           .stats{margin:0 16px 40px;flex-wrap:wrap}
           .stat{min-width:50%;border-right:none;border-bottom:0.5px solid rgba(0,0,0,0.06)}
-          .section{padding:36px 20px 48px}
+          .section{padding:60px 20px 48px}
           .feat-grid{grid-template-columns:1fr}
           .vs-wrap{grid-template-columns:1fr}
           .steps-wrap{flex-direction:column}
           .step-card:first-child{border-radius:20px 20px 0 0}
           .step-card:last-child{border-radius:0 0 20px 20px}
           .step-card+.step-card{border-left:0.5px solid rgba(255,255,255,0.85);border-top:none}
-          .order-outer{padding:36px 16px 80px}
+          .pricing-outer{padding:48px 20px 40px}
+          .pricing-grid{grid-template-columns:1fr 1fr;gap:12px}
+          .pricing-title{font-size:26px}
+          .order-outer{padding:60px 16px 80px}
           .order-card{padding:32px 20px}
           .order-title{font-size:24px}
           .footer{flex-direction:column;gap:8px;text-align:center;padding:20px}
@@ -609,7 +642,7 @@ export default function HomePage() {
               { q: "Apakah bisa diakses dari HP?", a: "Ya, absenku berbasis web dan responsif. Bisa diakses dari HP, tablet, maupun laptop — cukup buka browser, tidak perlu install aplikasi." },
               { q: "Data absensi aman tidak?", a: "Sangat aman. Data disimpan di cloud dengan enkripsi, dan tiap sekolah memiliki data yang terisolasi. Tidak ada sekolah lain yang bisa melihat data sekolah Anda." },
               { q: "Berapa sekolah yang sudah pakai?", a: "Saat ini absenku sedang dalam tahap MVP dan digunakan di sekolah kami sendiri sebagai beta tester. Kami membuka pendaftaran untuk sekolah-sekolah awal yang ingin bergabung." },
-              { q: "Bagaimana cara membuat akun guru / sekretaris?", a: "Akun dibuat oleh Admin Sekolah melalui dashboard. Tidak ada self-register — semua akun dikontrol oleh admin untuk keamanan data sekolah." },
+              { q: "Siapa yang input absensi dan bagaimana caranya?", a: "Absensi harian diinput oleh Petugas Absensi — satu orang per kelas, bisa sekretaris kelas atau wali kelas. Akunnya dibuat oleh Admin Sekolah melalui dashboard, tidak ada self-register. Petugas cukup buka browser, login, lalu input status H/S/I/A tiap siswa. Ada jam lock otomatis sesuai konfigurasi sekolah." },
               { q: "Apakah ada masa percobaan gratis?", a: "Hubungi kami via WhatsApp untuk info trial dan harga. Kami terbuka untuk diskusi sesuai kebutuhan dan jumlah kelas di sekolah Anda." },
             ].map((f, i) => (
               <div className="faq-item" key={i}>
@@ -622,8 +655,71 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Harga */}
+        <div className="pricing-outer reveal" id="harga">
+          <div className="pricing-header">
+            <div className="pricing-eyebrow">Harga</div>
+            <div className="pricing-title">Pilih paket yang sesuai</div>
+            <div className="pricing-sub">Semua fitur tersedia di setiap paket. Beda hanya di jumlah kelas.</div>
+            <div className="pricing-toggle">
+              <button
+                className={"pricing-toggle-btn" + (pricingPeriod === "bulanan" ? " active" : "")}
+                onClick={() => setPricingPeriod("bulanan")}
+              >Bulanan</button>
+              <button
+                className={"pricing-toggle-btn" + (pricingPeriod === "tahunan" ? " active" : "")}
+                onClick={() => setPricingPeriod("tahunan")}
+              >Tahunan <span style={{color: pricingPeriod === "tahunan" ? "#a5f3b4" : "#22c55e", fontSize: 11}}>-15%</span></button>
+            </div>
+          </div>
+          <div className="pricing-grid">
+            {[
+              { plan: "Starter", quota: "s/d 6 kelas", monthly: 59000, yearly: 599000, popular: false },
+              { plan: "Basic", quota: "s/d 12 kelas", monthly: 99000, yearly: 999000, popular: false },
+              { plan: "Pro", quota: "s/d 24 kelas", monthly: 169000, yearly: 1699000, popular: true },
+              { plan: "Enterprise", quota: "Unlimited kelas", monthly: null, yearly: null, popular: false },
+            ].map((p) => (
+              <div className={"pricing-card" + (p.popular ? " popular" : "")} key={p.plan}>
+                {p.popular && <div className="pricing-badge">⭐ Terpopuler</div>}
+                <div className="pricing-plan">{p.plan}</div>
+                {p.monthly ? (
+                  <div className="pricing-price">
+                    Rp {(pricingPeriod === "bulanan" ? p.monthly : Math.round(p.yearly! / 12)).toLocaleString("id-ID")}
+                    <span>/bln</span>
+                    {pricingPeriod === "tahunan" && (
+                      <div style={{fontSize: 11, color: "#22c55e", fontWeight: 500, marginTop: 2}}>
+                        Rp {p.yearly!.toLocaleString("id-ID")}/tahun
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="pricing-price-custom">Hubungi kami</div>
+                )}
+                <div className="pricing-quota">{p.quota}</div>
+                <div className="pricing-feats">
+                  {["Input absensi harian", "Rekap otomatis", "Export & cetak PDF", "Konfigurasi jam lock"].map((f) => (
+                    <div className="pricing-feat" key={f}>
+                      <div className="pricing-feat-check">✓</div>
+                      {f}
+                    </div>
+                  ))}
+                </div>
+                <a
+                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Halo Haruki, saya tertarik dengan paket ${p.plan} absenku. Boleh info lebih lanjut?`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={"pricing-cta " + (p.popular ? "pricing-cta-primary" : "pricing-cta-outline")}
+                >
+                  {p.monthly ? "Mulai Sekarang" : "Hubungi Kami"}
+                </a>
+              </div>
+            ))}
+          </div>
+          <div className="pricing-note">Semua harga belum termasuk PPN. Pembayaran via transfer bank.</div>
+        </div>
+
         {/* Order / CTA */}
-        <div className="order-outer reveal" id="harga">
+        <div className="order-outer reveal" id="mulai">
           <div className="order-card">
             <div className="order-eyebrow">Mulai sekarang</div>
             <div className="order-title">Siap digitalkan absensi sekolahmu?</div>

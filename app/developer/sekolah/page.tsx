@@ -37,7 +37,22 @@ function StatusBadge({ status }: { status: string | null }) {
   );
 }
 
-export default async function SekolahPage() {
+function PaketBadge({ paket }: { paket: string | null }) {
+  if (!paket) return null;
+  const map: Record<string, string> = {
+    STARTER: "bg-slate-100 text-slate-600",
+    BASIC: "bg-blue-100 text-blue-700",
+    PRO: "bg-indigo-100 text-indigo-700",
+    ENTERPRISE: "bg-purple-100 text-purple-700",
+  };
+  return (
+    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[paket] ?? "bg-slate-100 text-slate-500"}`}>
+      {paket.charAt(0) + paket.slice(1).toLowerCase()}
+    </span>
+  );
+}
+
+
   const sekolahList = await getAllSekolah();
 
   return (
@@ -80,6 +95,9 @@ export default async function SekolahPage() {
                   Status
                 </th>
                 <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+                  Paket
+                </th>
+                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
                   Kelas
                 </th>
                 <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
@@ -112,6 +130,9 @@ export default async function SekolahPage() {
                   </td>
                   <td className="px-5 py-3">
                     <StatusBadge status={sekolah.langganan?.status ?? null} />
+                  </td>
+                  <td className="px-5 py-3">
+                    <PaketBadge paket={sekolah.langganan?.paket ?? null} />
                   </td>
                   <td className="px-5 py-3 text-sm text-slate-600">
                     {sekolah._count.kelas}

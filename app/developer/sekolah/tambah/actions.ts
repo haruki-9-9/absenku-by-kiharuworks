@@ -4,6 +4,13 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth/password";
 
+const PAKET_MAX_KELAS: Record<string, number> = {
+  STARTER: 6,
+  BASIC: 12,
+  PRO: 24,
+  ENTERPRISE: 9999,
+};
+
 export async function tambahSekolahAction(
   _prevState: { success: boolean; message: string },
   formData: FormData
@@ -15,6 +22,7 @@ export async function tambahSekolahAction(
   const passwordAdmin = String(formData.get("passwordAdmin") || "").trim();
   const tanggalMulai = String(formData.get("tanggalMulai") || "").trim();
   const tanggalBerakhir = String(formData.get("tanggalBerakhir") || "").trim();
+  const paket = String(formData.get("paket") || "STARTER").trim();
 
   if (!nama || !emailAdmin || !namaAdmin || !passwordAdmin || !tanggalMulai || !tanggalBerakhir) {
     return { success: false, message: "Semua field wajib diisi." };
@@ -24,6 +32,10 @@ export async function tambahSekolahAction(
     return { success: false, message: "Password admin minimal 8 karakter." };
   }
 
+  if (!["STARTER", "BASIC", "PRO", "ENTERPRISE"].includes(paket)) {
+    return { success: false, message: "Paket tidak valid." };
+  }
+
   try {
     const existingUser = await prisma.user.findUnique({ where: { email: emailAdmin } });
     if (existingUser) {
@@ -31,6 +43,7 @@ export async function tambahSekolahAction(
     }
 
     const hashedPassword = await hashPassword(passwordAdmin);
+    const maxKelas = PAKET_MAX_KELAS[paket];
 
     await prisma.$transaction(async (tx) => {
       const sekolah = await tx.sekolah.create({
@@ -51,6 +64,8 @@ export async function tambahSekolahAction(
       await tx.langganan.create({
         data: {
           sekolahId: sekolah.id,
+          paket: paket as "STARTER" | "BASIC" | "PRO" | "ENTERPRISE",
+          maxKelas,
           status: "AKTIF",
           tanggalMulai: new Date(tanggalMulai),
           tanggalBerakhir: new Date(tanggalBerakhir),

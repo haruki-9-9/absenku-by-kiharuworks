@@ -94,6 +94,22 @@ export default function TambahSekolahForm() {
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
         <h2 className="text-sm font-semibold text-slate-700">Periode Langganan</h2>
 
+        <div>
+          <label className="block text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-1.5">
+            Paket <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="paket"
+            required
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30"
+          >
+            <option value="STARTER">Starter — s/d 6 kelas</option>
+            <option value="BASIC">Basic — s/d 12 kelas</option>
+            <option value="PRO">Pro — s/d 24 kelas</option>
+            <option value="ENTERPRISE">Enterprise — Unlimited</option>
+          </select>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-1.5">
