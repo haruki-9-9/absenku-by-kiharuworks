@@ -31,7 +31,7 @@ export async function loginAction(
       },
     });
 
-    if (!user || !user.isActive) {
+    if (!user || !user.isActive || !user.password) {
       return { success: false, message: "Email atau password salah." };
     }
 

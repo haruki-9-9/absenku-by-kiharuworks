@@ -117,9 +117,13 @@ absenku/
 │       ├── siswa/
 │       │   ├── page.tsx                  ✅ daftar siswa + kolom kelas aktif + toggle aktif/nonaktif
 │       │   ├── actions.ts                ✅ tambahSiswaAction + toggleSiswaAction
-│       │   └── tambah/
-│       │       ├── page.tsx
-│       │       └── TambahSiswaForm.tsx   ✅ glassmorphism
+│       │   ├── tambah/
+│       │   │   ├── page.tsx
+│       │   │   └── TambahSiswaForm.tsx   ✅ glassmorphism
+│       │   └── import/
+│       │       ├── page.tsx              ✅ wrapper server component
+│       │       ├── actions.ts            ✅ generateTemplateAction + importSiswaAction
+│       │       └── ImportSiswaForm.tsx   ✅ glassmorphism — download template + upload + hasil import
 │       ├── pengguna/
 │       │   ├── page.tsx                  ✅ daftar pengguna (SEKRETARIS + WALI_KELAS) + toggle aktif/nonaktif
 │       │   ├── actions.ts                ✅ tambahPenggunaAction (buat user + sekretaris record) + togglePenggunaAction
@@ -130,6 +134,20 @@ absenku/
 │           ├── page.tsx                  ✅ load konfigurasi dari DB
 │           ├── actions.ts                ✅ simpanKonfigurasiAction
 │           └── KonfigurasiForm.tsx       ✅ glassmorphism — jamLock, batasAlpa, zonaWaktu
+│   ├── (⚠️ ditemukan saat audit: Sidebar admin TIDAK punya link ke tahun-ajaran — halaman bisa diakses via URL langsung tapi tidak ada navigasi dari UI)
+│   └── tahun-ajaran/
+│       ├── page.tsx                      ✅ ditemukan saat audit — list TahunAjaran + Semester + toggle aktif
+│       ├── actions.ts                    ✅ toggleTahunAjaranAction + toggleSemesterAction
+│       └── tambah/
+│           ├── page.tsx
+│           └── TambahTahunAjaranForm.tsx
+├── lib/sekretaris/
+│   └── check-jam-lock.ts                 ✅ isJamLockTerlewati() + getTanggalHariIni() (timezone-aware)
+├── app/sekretaris/
+│   ├── layout.tsx                        ✅ glassmorphism (reuse Header admin)
+│   ├── page.tsx                          ✅ fetch kelas + siswa + absensi hari ini + status jam lock
+│   ├── actions.ts                        ✅ setStatusAbsensiAction (upsert, validasi kelas + jam lock)
+│   └── AbsensiList.tsx                   ✅ client component — tombol cepat H/S/I/A + keterangan inline
 ├── components/
 │   ├── auth/
 │   │   └── login-form.tsx
@@ -140,6 +158,8 @@ absenku/
 │   └── admin/
 │       ├── Header.tsx                    ✅ glassmorphism — tampil nama+email user + logout
 │       └── Sidebar.tsx                   ✅ glassmorphism — nav: Overview, Kelas, Siswa, Pengguna, Konfigurasi
+└── components/sekretaris/
+    └── Sidebar.tsx                       ✅ glassmorphism — 1 menu: Absensi Hari Ini
 ```
 
 ---
@@ -234,15 +254,17 @@ Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
   - ✅ Kelola Siswa — list + kolom kelas aktif + toggle aktif/nonaktif
   - ✅ Kelola Pengguna — list SEKRETARIS & WALI_KELAS + tambah (buat user + sekretaris record) + toggle aktif/nonaktif
   - ✅ Konfigurasi — jamLock, batasAlpa, zonaWaktu (WIB/WITA/WIT)
+  - ✅ **Import siswa bulk via Excel** — lihat detail di "Manajemen Siswa" di bawah
+- ✅ **Bug fix**: `app/admin/kelas/tambah/page.tsx` tidak fetch & kirim prop `tahunAjaranList` ke `TambahKelasForm` (pre-existing, ketemu saat build setelah fitur import siswa)
+- ✅ **Bug fix**: `app/login/actions.ts` — `verifyPassword` dipanggil dengan `user.password` yang bertipe `string | null` (field nullable di schema, sisa pola better-auth). Fix: tambah `!user.password` ke kondisi gagal login sebelum verify
+- ✅ **Dashboard Sekretaris** (`/sekretaris`) — lihat detail di "Detail Dashboard Sekretaris" di bawah, sudah ditest & build sukses
 
 ---
 
 ## Yang Belum Dikerjakan ⬜
 
-- [ ] **Import siswa bulk via Excel** () — template dinamis + validasi per baris ← **NEXT**
-- [ ] **Dashboard Sekretaris** () — input absensi harian + jam lock
-- [ ] **Schema tambahan**: `TahunAjaran`, `Semester`, `HariLibur` + relasi `Kelas` → `TahunAjaran` (fondasi rekap & kenaikan kelas)
-- [ ] Rekap bulanan — grid H/S/I/A per tanggal + warna
+- [ ] **`HariLibur`** — belum ada implementasi UI sama sekali (model ada di schema, tapi belum dipakai di kode manapun). `TahunAjaran` & `Semester` **sudah ada** halaman admin lengkap (`/admin/tahun-ajaran`) — baru ditemukan saat audit sesi ini, sebelumnya belum tercatat di sini.
+- [ ] Rekap bulanan — grid H/S/I/A per tanggal + warna ← **NEXT**
 - [ ] Rekap semester — ringkasan per bulan
 - [ ] Export Excel rekap (dengan warna sel)
 - [ ] Form cetak PDF (F4, mingguan) — menunggu contoh format dari Haru
@@ -282,20 +304,62 @@ Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
 
 ## Aturan Bisnis Penting
 
-### Input Absensi (Sekretaris)
+### Input Absensi (Sekretaris) ✅ SELESAI
 - 1 sekretaris = 1 kelas (ditugaskan admin), kelas otomatis saat login
 - Hanya bisa input/edit absensi **hari ini saja**
 - Setelah **jam lock** → sekretaris tidak bisa ubah
-- **Admin sekolah bypass lock** — bisa edit tanggal apapun kapan saja
+- **Admin sekolah bypass lock** — bisa edit tanggal apapun kapan saja (belum dibangun — ini scope dashboard Admin, beda dari dashboard Sekretaris)
+
+#### Detail Dashboard Sekretaris (✅ selesai, sudah ditest & build sukses)
+**Keputusan final:**
+- Semua siswa **default H (Hadir)** saat halaman dibuka — sekretaris cukup klik tombol cepat untuk siswa yang S/I/A saja, tidak perlu klik H satu-satu.
+- Klik tombol **H** → langsung tersimpan ke DB, tanpa keterangan.
+- Klik tombol **S/I/A** → muncul input keterangan opsional inline + tombol "Simpan" kecil, baru tersimpan setelah diklik.
+- Field `keterangan` dipakai (opsional, bebas teks, contoh: alasan izin/sakit).
+- Setelah lewat **jam lock** (`KonfigurasiSekolah.jamLock`, format `HH:MM`, dibandingkan sesuai `zonaWaktu` sekolah) → halaman tetap tampil data (read-only), semua tombol disabled.
+
+**File:**
+- `lib/sekretaris/check-jam-lock.ts` — `isJamLockTerlewati(jamLock, zonaWaktu)` dan `getTanggalHariIni(zonaWaktu)`, keduanya timezone-aware pakai `Intl.DateTimeFormat` (tidak perlu library tambahan)
+- `app/sekretaris/actions.ts` — `setStatusAbsensiAction(siswaId, status, keterangan?)`: validasi role SEKRETARIS + siswa benar ada di kelas sekretaris ini + belum lewat jam lock, lalu `upsert` ke `Absensi` (unique constraint `siswaId_tanggal`)
+- `app/sekretaris/layout.tsx` — shell dashboard, reuse `Header` admin (generic, tidak perlu duplikat)
+- `components/sekretaris/Sidebar.tsx` — sidebar simpel 1 menu ("Absensi Hari Ini"), footer label **"Petugas Absensi"**
+- `app/sekretaris/page.tsx` — server component: fetch kelas sekretaris (via tabel `Sekretaris`), siswa aktif di kelas itu (urut `nomorAbsen`), absensi hari ini (kalau ada), status jam lock. Render badge "Terkunci sejak [jam]" atau "Bisa diisi sampai [jam]"
+- `app/sekretaris/AbsensiList.tsx` — client component: list siswa, 4 tombol cepat H/S/I/A per orang, input keterangan inline untuk S/I/A
+
+**Catatan**: middleware (`/sekretaris/:path*`) sudah proteksi route ini sejak awal, tidak perlu diubah.
+
+**Catatan proses (penting untuk Claude di sesi depan)**: saat mengerjakan `page.tsx` di sesi ini, sempat muncul file `page.tsx` dan `AbsensiList.tsx` di sandbox yang tidak ditulis lewat tool call yang sah/disengaja dalam giliran tsb — kemungkinan sisa state dari proses sebelumnya. File itu dihapus dan ditulis ulang dari nol secara sengaja sebelum dikirim ke Haru, supaya isinya bisa dipertanggungjawabkan baris per baris. Pelajaran: selalu verifikasi `ls`/`view` folder target sebelum `create_file` kalau ada kejanggalan, dan jangan kirim file yang prosesnya tidak diingat dengan jelas.
+
+---
 
 ### Manajemen Siswa
 - Tambah manual ✅ sudah ada
-- Import bulk via Excel ⬜ belum:
-  - Template di-generate dinamis (daftar kelas aktif sebagai dropdown kolom "Kelas")
-  - Kolom: No, Nama Siswa, NIS, Jenis Kelamin, Kelas
-  - Validasi per baris — error dilaporkan, baris valid tetap diimport
+- Import bulk via Excel ✅ **SELESAI** — lihat "Detail Import Siswa Excel" di bawah
 - Nonaktifkan siswa ✅ sudah ada
 - Siswa pindah kelas: absensi lama tetap terikat kelas lama (via `SiswaKelas`)
+
+#### Detail Import Siswa Excel (✅ selesai, sudah ditest & build sukses)
+**Library**: `exceljs` (MIT license, gratis), `"exceljs": "^4.4.0"` di `package.json`.
+
+**Keputusan final:**
+- Nomor absen hasil import: **otomatis alfabetis per kelas**, lanjut dari nomor terakhir yang sudah ada di kelas tsb.
+- NIS duplikat (vs database existing maupun duplikat di dalam file itu sendiri): **ditolak**, jadi baris error — tidak ada update/overwrite data existing.
+- Kolom Excel: `Nama Siswa | NIS | Jenis Kelamin (L/P) | Kelas`.
+
+**File:**
+- `package.json` — tambah `exceljs`
+- `app/admin/siswa/import/actions.ts` — `generateTemplateAction()` (generate `.xlsx` base64, dropdown L/P + dropdown Kelas dari sheet `_RefKelas` hidden) dan `importSiswaAction(formData)` (parse, validasi per baris, hitung nomor absen alfabetis, insert via `$transaction`)
+- `app/admin/siswa/import/page.tsx` — wrapper server component
+- `app/admin/siswa/import/ImportSiswaForm.tsx` — client component: tombol download template, form upload, tampilan hasil (total berhasil/gagal + list error per baris)
+- `app/admin/siswa/page.tsx` — tombol "Import Excel" di sebelah tombol "Tambah Siswa"
+
+**Bug pre-existing yang ketemu & diperbaiki di tengah proses ini (tidak terkait fitur import siswa, tapi blocking build):**
+1. `app/admin/kelas/tambah/page.tsx` — lupa fetch & kirim prop `tahunAjaranList` ke `TambahKelasForm`. Fix: jadi async server component, fetch `prisma.tahunAjaran.findMany()` (yang aktif), kirim sebagai prop.
+2. `app/login/actions.ts` — `verifyPassword(password, user.password)` error karena `user.password` bertipe `string | null` di schema (field nullable, sisa pola better-auth). Fix: tambah `!user.password` ke kondisi early-return gagal login.
+
+**Catatan**: sandbox Claude tidak punya akses ke `binaries.prisma.sh`, jadi `prisma generate` gagal di sandbox (403). Tidak berpengaruh ke environment Haru — semua fix di atas sudah dikonfirmasi build sukses oleh Haru langsung.
+
+---
 
 ### Kenaikan Kelas
 - Tiap tahun ajaran baru, admin **buat ulang kelas** (nama sama, tahun ajaran berbeda) — "X TKJ" di 2024/2025 dan "X TKJ" di 2025/2026 adalah dua record berbeda

@@ -51,23 +51,42 @@ export default async function SiswaPage() {
               {totalAktif} siswa aktif dari {siswaList.length} total terdaftar
             </p>
           </div>
-          <Link
-            href="/admin/siswa/tambah"
-            className="btn-tambah"
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "10px 20px", borderRadius: 12, fontSize: 13, fontWeight: 600,
-              background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-              color: "#fff", textDecoration: "none",
-              boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
-              transition: "all 0.2s",
-            }}
-          >
-            <svg viewBox="0 0 20 20" fill="currentColor" width={16} height={16}>
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-            Tambah Siswa
-          </Link>
+          <div style={{ display: "flex", gap: 10 }}>
+            <Link
+              href="/admin/siswa/import"
+              className="btn-toggle"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                padding: "10px 20px", borderRadius: 12, fontSize: 13, fontWeight: 600,
+                background: "rgba(99,102,241,0.06)",
+                border: "0.5px solid rgba(99,102,241,0.3)",
+                color: "#6366f1", textDecoration: "none",
+                transition: "all 0.2s",
+              }}
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" width={16} height={16}>
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+              Import Excel
+            </Link>
+            <Link
+              href="/admin/siswa/tambah"
+              className="btn-tambah"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                padding: "10px 20px", borderRadius: 12, fontSize: 13, fontWeight: 600,
+                background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                color: "#fff", textDecoration: "none",
+                boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
+                transition: "all 0.2s",
+              }}
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" width={16} height={16}>
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              Tambah Siswa
+            </Link>
+          </div>
         </div>
 
         {/* Tabel */}
