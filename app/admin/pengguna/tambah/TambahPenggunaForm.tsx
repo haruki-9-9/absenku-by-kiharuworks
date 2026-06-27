@@ -128,7 +128,7 @@ export default function TambahPenggunaForm({ kelasList }: { kelasList: Kelas[] }
           </div>
 
           {/* Kelas — hanya muncul kalau role SEKRETARIS */}
-          {role === "SEKRETARIS" && (
+          {(role === "SEKRETARIS" || role === "WALI_KELAS") && (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "#475569" }}>
                 Tugaskan ke Kelas <span style={{ color: "#ef4444" }}>*</span>

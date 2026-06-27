@@ -36,13 +36,17 @@ export async function tambahPenggunaAction(
     return { success: false, message: "Petugas Absensi wajib ditugaskan ke kelas." };
   }
 
+  if (role === "WALI_KELAS" && !kelasId) {
+    return { success: false, message: "Wali Kelas wajib ditugaskan ke kelas." };
+  }
+
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return { success: false, message: "Email sudah digunakan." };
     }
 
-    if (role === "SEKRETARIS" && kelasId) {
+    if (kelasId) {
       // Pastikan kelas milik sekolah ini
       const kelas = await prisma.kelas.findFirst({
         where: { id: kelasId, sekolahId: user.sekolahId },
@@ -51,12 +55,18 @@ export async function tambahPenggunaAction(
         return { success: false, message: "Kelas tidak valid." };
       }
 
-      // Cek kelas sudah punya sekretaris
-      const existingSekretaris = await prisma.sekretaris.findUnique({
-        where: { kelasId },
-      });
-      if (existingSekretaris) {
-        return { success: false, message: `Kelas "${kelas.nama}" sudah memiliki Petugas Absensi.` };
+      if (role === "SEKRETARIS") {
+        const existing = await prisma.sekretaris.findUnique({ where: { kelasId } });
+        if (existing) {
+          return { success: false, message: `Kelas "${kelas.nama}" sudah memiliki Petugas Absensi.` };
+        }
+      }
+
+      if (role === "WALI_KELAS") {
+        const existing = await prisma.waliKelas.findUnique({ where: { kelasId } });
+        if (existing) {
+          return { success: false, message: `Kelas "${kelas.nama}" sudah memiliki Wali Kelas.` };
+        }
       }
     }
 
@@ -76,6 +86,12 @@ export async function tambahPenggunaAction(
 
       if (role === "SEKRETARIS" && kelasId) {
         await tx.sekretaris.create({
+          data: { userId: newUser.id, kelasId },
+        });
+      }
+
+      if (role === "WALI_KELAS" && kelasId) {
+        await tx.waliKelas.create({
           data: { userId: newUser.id, kelasId },
         });
       }

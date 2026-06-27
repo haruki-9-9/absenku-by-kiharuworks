@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/auth/get-current-user";
+import OverviewKehadiranWidget from "./OverviewKehadiranWidget";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
@@ -226,6 +227,9 @@ export default async function AdminPage() {
           }
         />
       </div>
+
+      {/* Widget kehadiran real-time */}
+      <OverviewKehadiranWidget />
 
       {/* Langganan info */}
       {langganan && (
