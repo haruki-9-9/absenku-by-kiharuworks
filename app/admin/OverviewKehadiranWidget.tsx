@@ -83,11 +83,19 @@ export default function OverviewKehadiranWidget() {
         .refresh-btn:hover { background: rgba(99,102,241,0.12) !important; }
         .kelas-row:hover { background: rgba(99,102,241,0.03) !important; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          .overview-widget-header { flex-direction: column !important; gap: 10px !important; align-items: flex-start !important; }
+          .overview-widget-header-actions { width: 100%; display: flex; gap: 8px; }
+          .overview-widget-header-actions a, .overview-widget-header-actions button { flex: 1; justify-content: center; }
+          .overview-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .overview-tabel-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .overview-tabel-scroll table { min-width: 520px; }
+        }
       `}</style>
 
       <div style={{ ...cardStyle, padding: "20px 24px" }}>
         {/* Header widget */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div className="overview-widget-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.12em", textTransform: "uppercase" }}>
               Kehadiran Hari Ini
@@ -103,7 +111,7 @@ export default function OverviewKehadiranWidget() {
               </p>
             )}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="overview-widget-header-actions" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button
               className="refresh-btn"
               onClick={fetchData}
@@ -151,7 +159,7 @@ export default function OverviewKehadiranWidget() {
         ) : (
           <>
             {/* Ringkasan total */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+            <div className="overview-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
               {[
                 { label: "% Kehadiran", value: `${persenSemua}%`, color: persenSemua >= 80 ? "#16a34a" : persenSemua >= 60 ? "#b45309" : "#dc2626", bg: "rgba(99,102,241,0.06)" },
                 { label: "Hadir", value: hadirSemua, color: "#16a34a", bg: "rgba(34,197,94,0.06)" },
@@ -189,7 +197,8 @@ export default function OverviewKehadiranWidget() {
 
             {/* Tabel per kelas */}
             <div style={{ borderRadius: 12, overflow: "hidden", border: "0.5px solid rgba(0,0,0,0.06)" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div className="overview-tabel-scroll">
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 520 }}>
                 <thead>
                   <tr style={{ background: "rgba(99,102,241,0.04)", borderBottom: "0.5px solid rgba(0,0,0,0.06)" }}>
                     {["Kelas", "Siswa", "Hadir", "Sakit", "Izin", "Alpa", "Belum", "% Hadir"].map((h) => (
@@ -248,6 +257,7 @@ export default function OverviewKehadiranWidget() {
                   })}
                 </tbody>
               </table>
+              </div>
             </div>
           </>
         )}

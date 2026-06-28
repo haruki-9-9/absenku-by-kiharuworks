@@ -109,7 +109,16 @@ export default async function SiswaBermasalahPage() {
 
   return (
     <>
-      <style>{`.siswa-row:hover { background: rgba(239,68,68,0.03) !important; }`}</style>
+      <style>{`.siswa-row:hover { background: rgba(239,68,68,0.03) !important; }
+        @media (max-width: 768px) {
+          .bermasalah-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .bermasalah-table-wrap { display: none !important; }
+          .bermasalah-cards { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .bermasalah-cards { display: none !important; }
+        }
+      `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Header */}
@@ -138,7 +147,7 @@ export default async function SiswaBermasalahPage() {
         </div>
 
         {/* Stat cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <div className="bermasalah-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
           {[
             { label: "Total Siswa Bermasalah", value: data.length, color: "#dc2626", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.15)" },
             { label: "Batas Alpa", value: `${batasAlpa}x`, color: "#b45309", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.15)" },
@@ -156,7 +165,7 @@ export default async function SiswaBermasalahPage() {
         </div>
 
         {/* Tabel */}
-        <div style={{ ...cardStyle, overflow: "hidden" }}>
+        <div className="bermasalah-table-wrap" style={{ ...cardStyle, overflow: "hidden" }}>
           {data.length === 0 ? (
             <div style={{ padding: 48, textAlign: "center" }}>
               <p style={{ fontSize: 20, marginBottom: 8 }}>🎉</p>
@@ -231,6 +240,44 @@ export default async function SiswaBermasalahPage() {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Mobile card view */}
+        <div className="bermasalah-cards" style={{ flexDirection: "column", gap: 10, display: "none" }}>
+          {data.length === 0 ? (
+            <div style={{ ...cardStyle, padding: 32, textAlign: "center" }}>
+              <p style={{ fontSize: 20, marginBottom: 8 }}>🎉</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Tidak ada siswa bermasalah</p>
+              <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>Semua siswa masih di bawah batas alpa {batasAlpa}x.</p>
+            </div>
+          ) : data.map((d, i) => {
+            const level = d.totalAlpa >= batasAlpa * 2
+              ? { color: "#7c3aed", bg: "rgba(139,92,246,0.1)", label: "Kritis" }
+              : { color: "#dc2626", bg: "rgba(239,68,68,0.1)", label: "Peringatan" };
+            return (
+              <div key={`${d.siswa!.id}-${d.kelas!.id}`} style={{
+                ...cardStyle, padding: "14px 16px",
+                borderRadius: 16, boxShadow: "0 4px 16px rgba(99,102,241,0.06)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                  <div>
+                    <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 2 }}>#{i + 1}</p>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{d.siswa!.nama}</p>
+                    <p style={{ fontSize: 12, color: "#64748b" }}>{d.siswa!.nis}</p>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ fontSize: 22, fontWeight: 800, color: level.color }}>{d.totalAlpa}x</p>
+                    <span style={{ padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700, background: level.bg, color: level.color }}>
+                      {level.label}
+                    </span>
+                  </div>
+                </div>
+                <span style={{ padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "rgba(99,102,241,0.08)", color: "#6366f1" }}>
+                  {d.kelas!.nama}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </>

@@ -38,11 +38,21 @@ export default async function SiswaPage() {
         .siswa-row:hover { background: rgba(99,102,241,0.04) !important; }
         .btn-toggle:hover { opacity: 0.8; }
         .btn-tambah:hover { opacity: 0.9; transform: translateY(-1px); }
+        @media (max-width: 768px) {
+          .siswa-header { flex-direction: column !important; gap: 12px !important; }
+          .siswa-header-btns { width: 100%; justify-content: stretch !important; }
+          .siswa-header-btns a { flex: 1; justify-content: center; }
+          .siswa-table-wrap { display: none !important; }
+          .siswa-cards { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .siswa-cards { display: none !important; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div className="siswa-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Kelola Siswa
@@ -51,7 +61,7 @@ export default async function SiswaPage() {
               {totalAktif} siswa aktif dari {siswaList.length} total terdaftar
             </p>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div className="siswa-header-btns" style={{ display: "flex", gap: 10 }}>
             <Link
               href="/admin/siswa/import"
               className="btn-toggle"
@@ -90,7 +100,7 @@ export default async function SiswaPage() {
         </div>
 
         {/* Tabel */}
-        <div style={{
+        <div className="siswa-table-wrap" style={{
           background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
           borderRadius: 20, boxShadow: "0 8px 32px rgba(99,102,241,0.08)", overflow: "hidden",
@@ -196,6 +206,87 @@ export default async function SiswaPage() {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Mobile card view */}
+        <div className="siswa-cards" style={{ flexDirection: "column", gap: 10, display: "none" }}>
+          {siswaList.length === 0 ? (
+            <div style={{
+              background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+              borderRadius: 16, padding: 32, textAlign: "center",
+              boxShadow: "0 8px 32px rgba(99,102,241,0.08)",
+            }}>
+              <p style={{ fontSize: 13, color: "#94a3b8" }}>Belum ada siswa terdaftar.</p>
+            </div>
+          ) : siswaList.map((siswa) => {
+            const kelasAktif = siswa.kelas[0]?.kelas?.nama ?? null;
+            return (
+              <div key={siswa.id} style={{
+                background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+                borderRadius: 16, padding: "14px 16px",
+                boxShadow: "0 4px 16px rgba(99,102,241,0.06)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{siswa.nama}</p>
+                    <p style={{ fontSize: 11, fontFamily: "monospace", color: "#6366f1", fontWeight: 600, marginTop: 2 }}>{siswa.nis}</p>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                      width: 24, height: 24, borderRadius: 6, fontSize: 11, fontWeight: 700,
+                      background: siswa.jenisKelamin === "L" ? "rgba(14,165,233,0.1)" : "rgba(236,72,153,0.1)",
+                      color: siswa.jenisKelamin === "L" ? "#0ea5e9" : "#ec4899",
+                    }}>
+                      {siswa.jenisKelamin}
+                    </span>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 4,
+                      padding: "3px 8px", borderRadius: 99, fontSize: 11, fontWeight: 600,
+                      background: siswa.isActive ? "rgba(16,185,129,0.1)" : "rgba(148,163,184,0.15)",
+                      color: siswa.isActive ? "#059669" : "#94a3b8",
+                    }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: siswa.isActive ? "#10b981" : "#94a3b8" }} />
+                      {siswa.isActive ? "Aktif" : "Nonaktif"}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  {kelasAktif ? (
+                    <span style={{
+                      padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600,
+                      background: "rgba(99,102,241,0.08)", color: "#6366f1",
+                    }}>
+                      {kelasAktif}
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>Belum di kelas</span>
+                  )}
+                  <form action={async () => {
+                    "use server";
+                    await toggleSiswaAction(siswa.id, !siswa.isActive);
+                  }}>
+                    <button
+                      type="submit"
+                      className="btn-toggle"
+                      style={{
+                        padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                        border: "0.5px solid",
+                        borderColor: siswa.isActive ? "rgba(239,68,68,0.3)" : "rgba(99,102,241,0.3)",
+                        background: siswa.isActive ? "rgba(239,68,68,0.06)" : "rgba(99,102,241,0.06)",
+                        color: siswa.isActive ? "#ef4444" : "#6366f1",
+                        cursor: "pointer", transition: "all 0.2s",
+                      }}
+                    >
+                      {siswa.isActive ? "Nonaktifkan" : "Aktifkan"}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </>

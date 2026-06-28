@@ -40,11 +40,20 @@ export default async function PenggunaPage() {
         .btn-toggle:hover { opacity: 0.8; }
         .btn-tambah:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-reset:hover { opacity: 0.8; }
+        @media (max-width: 768px) {
+          .pengguna-header { flex-direction: column !important; gap: 12px !important; }
+          .pengguna-header a { width: 100%; justify-content: center; }
+          .pengguna-table-wrap { display: none !important; }
+          .pengguna-cards { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .pengguna-cards { display: none !important; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div className="pengguna-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Kelola Pengguna
@@ -73,7 +82,7 @@ export default async function PenggunaPage() {
         </div>
 
         {/* Tabel */}
-        <div style={{
+        <div className="pengguna-table-wrap" style={{
           background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
           borderRadius: 20, boxShadow: "0 8px 32px rgba(99,102,241,0.08)", overflow: "hidden",
@@ -183,6 +192,79 @@ export default async function PenggunaPage() {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Mobile card view */}
+        <div className="pengguna-cards" style={{ flexDirection: "column", gap: 10, display: "none" }}>
+          {penggunaList.length === 0 ? (
+            <div style={{
+              background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+              borderRadius: 16, padding: 32, textAlign: "center",
+              boxShadow: "0 8px 32px rgba(99,102,241,0.08)",
+            }}>
+              <p style={{ fontSize: 13, color: "#94a3b8" }}>Belum ada pengguna. Tambah pengguna pertama.</p>
+            </div>
+          ) : penggunaList.map((pengguna) => {
+            const rc = roleColor[pengguna.role] ?? { bg: "rgba(148,163,184,0.1)", color: "#94a3b8" };
+            const kelasNama = pengguna.sekretaris?.kelas.nama ?? pengguna.waliKelas?.kelas.nama ?? null;
+            return (
+              <div key={pengguna.id} style={{
+                background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+                borderRadius: 16, padding: "14px 16px",
+                boxShadow: "0 4px 16px rgba(99,102,241,0.06)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{pengguna.name}</p>
+                    <p style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{pengguna.email}</p>
+                  </div>
+                  <span style={{
+                    display: "inline-flex", alignItems: "center", gap: 4,
+                    padding: "3px 8px", borderRadius: 99, fontSize: 11, fontWeight: 600,
+                    background: pengguna.isActive ? "rgba(16,185,129,0.1)" : "rgba(148,163,184,0.15)",
+                    color: pengguna.isActive ? "#059669" : "#94a3b8",
+                  }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: pengguna.isActive ? "#10b981" : "#94a3b8" }} />
+                    {pengguna.isActive ? "Aktif" : "Nonaktif"}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+                  <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600, background: rc.bg, color: rc.color }}>
+                    {roleLabel[pengguna.role] ?? pengguna.role}
+                  </span>
+                  {kelasNama && (
+                    <span style={{ padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600, background: "rgba(99,102,241,0.08)", color: "#6366f1" }}>
+                      {kelasNama}
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <form action={async () => {
+                    "use server";
+                    await togglePenggunaAction(pengguna.id, !pengguna.isActive);
+                  }}>
+                    <button
+                      type="submit"
+                      className="btn-toggle"
+                      style={{
+                        padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                        border: "0.5px solid",
+                        borderColor: pengguna.isActive ? "rgba(239,68,68,0.3)" : "rgba(99,102,241,0.3)",
+                        background: pengguna.isActive ? "rgba(239,68,68,0.06)" : "rgba(99,102,241,0.06)",
+                        color: pengguna.isActive ? "#ef4444" : "#6366f1",
+                        cursor: "pointer", transition: "all 0.2s",
+                      }}
+                    >
+                      {pengguna.isActive ? "Nonaktifkan" : "Aktifkan"}
+                    </button>
+                  </form>
+                  <ResetPasswordModal userId={pengguna.id} userName={pengguna.name} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </>

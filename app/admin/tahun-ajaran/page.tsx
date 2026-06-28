@@ -26,11 +26,20 @@ export default async function TahunAjaranPage() {
       <style>{`
         .row-hover:hover { background: rgba(99,102,241,0.04) !important; }
         .btn-action:hover { opacity: 0.8; }
+        @media (max-width: 768px) {
+          .ta-header { flex-direction: column !important; gap: 12px !important; }
+          .ta-header a { width: 100%; justify-content: center; }
+          .ta-card-header { flex-direction: column !important; gap: 10px !important; }
+          .ta-card-header-actions { display: flex; gap: 8px; width: 100%; }
+          .ta-card-header-actions form, .ta-card-header-actions a { flex: 1; }
+          .ta-card-header-actions button, .ta-card-header-actions a { width: 100%; justify-content: center; }
+          .ta-sem-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div className="ta-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Tahun Ajaran
@@ -78,7 +87,7 @@ export default async function TahunAjaranPage() {
                 overflow: "hidden",
               }}>
                 {/* Header tahun ajaran */}
-                <div style={{
+                <div className="ta-card-header" style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   padding: "16px 24px", borderBottom: "0.5px solid rgba(0,0,0,0.06)",
                 }}>
@@ -102,7 +111,7 @@ export default async function TahunAjaranPage() {
                       {ta.isActive ? "Aktif" : "Nonaktif"}
                     </span>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div className="ta-card-header-actions" style={{ display: "flex", gap: 8 }}>
                     <Link
                       href={`/admin/tahun-ajaran/${ta.id}/tambah-semester`}
                       className="btn-action"
@@ -145,6 +154,7 @@ export default async function TahunAjaranPage() {
                     </p>
                   </div>
                 ) : (
+                  <div className="ta-sem-scroll">
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                       <tr style={{ borderBottom: "0.5px solid rgba(0,0,0,0.04)" }}>
@@ -209,6 +219,7 @@ export default async function TahunAjaranPage() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 )}
               </div>
             ))}

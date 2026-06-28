@@ -103,11 +103,17 @@ export default function KehadiranClient({ kelasList }: { kelasList: Kelas[] }) {
       <style>{`
         .kelas-tab:hover { background: rgba(99,102,241,0.08) !important; }
         .refresh-btn:hover { background: rgba(99,102,241,0.12) !important; }
+        @media (max-width: 768px) {
+          .kehadiran-header { flex-direction: column !important; gap: 10px !important; }
+          .kehadiran-stat-grid { grid-template-columns: repeat(3, 1fr) !important; }
+          .kehadiran-tabel-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .kehadiran-tabel-scroll table { min-width: 480px; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+        <div className="kehadiran-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Pantau Kehadiran
@@ -183,7 +189,7 @@ export default function KehadiranClient({ kelasList }: { kelasList: Kelas[] }) {
 
             {/* Ringkasan stat cards */}
             {ringkasan && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+              <div className="kehadiran-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
                 {[
                   { label: "Total Siswa", value: ringkasan.total, color: "#6366f1", bg: "rgba(99,102,241,0.08)", border: "rgba(99,102,241,0.15)" },
                   { label: "Hadir", value: ringkasan.hadir, color: "#16a34a", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.15)" },
@@ -224,6 +230,7 @@ export default function KehadiranClient({ kelasList }: { kelasList: Kelas[] }) {
                   <p style={{ fontSize: 13, color: "#94a3b8" }}>Belum ada siswa di kelas ini.</p>
                 </div>
               ) : (
+                <div className="kehadiran-tabel-scroll">
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ borderBottom: "0.5px solid rgba(0,0,0,0.06)" }}>
@@ -288,6 +295,7 @@ export default function KehadiranClient({ kelasList }: { kelasList: Kelas[] }) {
                     })}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </>

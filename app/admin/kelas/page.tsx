@@ -34,11 +34,20 @@ export default async function KelasPage() {
         .kelas-row:hover { background: rgba(99,102,241,0.04) !important; }
         .btn-tambah:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-toggle:hover { opacity: 0.8; }
+        @media (max-width: 768px) {
+          .kelas-header { flex-direction: column !important; gap: 12px !important; }
+          .kelas-header a { width: 100%; justify-content: center; }
+          .kelas-table-wrap { display: none !important; }
+          .kelas-cards { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .kelas-cards { display: none !important; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div className="kelas-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Kelola Kelas
@@ -96,7 +105,7 @@ export default async function KelasPage() {
         </div>
 
         {/* Tabel kelas */}
-        <div style={{
+        <div className="kelas-table-wrap" style={{
           background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
           borderRadius: 20, boxShadow: "0 8px 32px rgba(99,102,241,0.08)", overflow: "hidden",
@@ -180,6 +189,64 @@ export default async function KelasPage() {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Mobile card view */}
+        <div className="kelas-cards" style={{ flexDirection: "column", gap: 10, display: "none" }}>
+          {kelasList.length === 0 ? (
+            <div style={{
+              background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+              borderRadius: 16, padding: 32, textAlign: "center",
+              boxShadow: "0 8px 32px rgba(99,102,241,0.08)",
+            }}>
+              <p style={{ fontSize: 13, color: "#94a3b8" }}>Belum ada kelas. Tambah kelas pertama Anda.</p>
+            </div>
+          ) : kelasList.map((kelas) => (
+            <div key={kelas.id} style={{
+              background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+              borderRadius: 16, padding: "14px 16px",
+              boxShadow: "0 4px 16px rgba(99,102,241,0.06)",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{kelas.nama}</p>
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  padding: "3px 8px", borderRadius: 99, fontSize: 11, fontWeight: 600,
+                  background: kelas.isActive ? "rgba(16,185,129,0.1)" : "rgba(148,163,184,0.15)",
+                  color: kelas.isActive ? "#059669" : "#94a3b8",
+                }}>
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: kelas.isActive ? "#10b981" : "#94a3b8" }} />
+                  {kelas.isActive ? "Aktif" : "Nonaktif"}
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 12, marginBottom: 10, fontSize: 12, color: "#64748b" }}>
+                <span>{kelas._count.siswa} siswa</span>
+                <span>·</span>
+                <span>{kelas.sekretaris?.user.name ?? <span style={{ color: "#94a3b8", fontStyle: "italic" }}>Belum ditugaskan</span>}</span>
+              </div>
+              <form action={async () => {
+                "use server";
+                await toggleKelasAction(kelas.id, !kelas.isActive);
+              }}>
+                <button
+                  type="submit"
+                  className="btn-toggle"
+                  style={{
+                    padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                    border: "0.5px solid",
+                    borderColor: kelas.isActive ? "rgba(239,68,68,0.3)" : "rgba(99,102,241,0.3)",
+                    background: kelas.isActive ? "rgba(239,68,68,0.06)" : "rgba(99,102,241,0.06)",
+                    color: kelas.isActive ? "#ef4444" : "#6366f1",
+                    cursor: "pointer", transition: "all 0.2s",
+                  }}
+                >
+                  {kelas.isActive ? "Nonaktifkan" : "Aktifkan"}
+                </button>
+              </form>
+            </div>
+          ))}
         </div>
       </div>
     </>
