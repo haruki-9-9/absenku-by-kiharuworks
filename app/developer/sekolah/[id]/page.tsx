@@ -130,12 +130,20 @@ export default async function DetailSekolahPage({
       <style>{`
         .user-row:hover { background: rgba(99,102,241,0.04); }
         .hapus-btn:hover { background: rgba(239,68,68,0.15) !important; }
+        @media (max-width: 768px) {
+          .detail-header { flex-direction: column !important; gap: 14px !important; align-items: stretch !important; }
+          .detail-header form button { width: 100%; }
+          .detail-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .detail-info-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .detail-tabel-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .detail-tabel-scroll table { min-width: 560px; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div className="detail-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <Link
               href="/developer/sekolah"
@@ -183,7 +191,7 @@ export default async function DetailSekolahPage({
         </div>
 
         {/* Stat mini */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+        <div className="detail-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
           {[
             { label: "Total Kelas", value: sekolah._count.kelas, color: "#6366f1" },
             { label: "Total Siswa", value: sekolah._count.siswa, color: "#0ea5e9" },
@@ -208,7 +216,7 @@ export default async function DetailSekolahPage({
           </div>
           <div style={{ padding: "20px 24px" }}>
             {l ? (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+              <div className="detail-info-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
                 <InfoRow label="Paket" value={<PaketBadge paket={l.paket} />} />
                 <InfoRow label="Status" value={<StatusBadge status={l.status} />} />
                 <InfoRow label="Mulai" value={new Date(l.tanggalMulai).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} />
@@ -228,7 +236,7 @@ export default async function DetailSekolahPage({
             <div style={cardHeaderStyle}>
               <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>Konfigurasi Sekolah</p>
             </div>
-            <div style={{ padding: "20px 24px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            <div className="detail-info-grid" style={{ padding: "20px 24px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
               <InfoRow label="Jam Lock Absensi" value={k.jamLock} />
               <InfoRow label="Batas Alpa" value={`${k.batasAlpa} hari`} />
               <InfoRow label="Zona Waktu" value={k.zonaWaktu} />
@@ -248,6 +256,7 @@ export default async function DetailSekolahPage({
               <p style={{ fontSize: 13, color: "#94a3b8" }}>Belum ada akun user.</p>
             </div>
           ) : (
+            <div className="detail-tabel-scroll">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "0.5px solid rgba(99,102,241,0.08)" }}>
@@ -299,6 +308,7 @@ export default async function DetailSekolahPage({
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

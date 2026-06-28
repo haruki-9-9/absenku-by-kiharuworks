@@ -73,7 +73,15 @@ export default async function DeveloperPage() {
   const data = await getOverviewData();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+    <>
+      <style>{`
+        @media (max-width: 768px) {
+          .dev-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .dev-tabel-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .dev-tabel-scroll table { min-width: 420px; }
+        }
+      `}</style>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       {/* Page title */}
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>Overview</h1>
@@ -81,7 +89,7 @@ export default async function DeveloperPage() {
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+      <div className="dev-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
         <StatCard label="Total Sekolah" value={data.totalSekolah} color="#0f172a" bg="" />
         <StatCard label="Langganan Aktif" value={data.sekolahAktif} color="#22c55e" bg="" />
         <StatCard label="Expired" value={data.sekolahExpired} color="#ef4444" bg="" />
@@ -104,6 +112,7 @@ export default async function DeveloperPage() {
             <p style={{ fontSize: 13, color: "#94a3b8" }}>Tidak ada langganan yang mau habis dalam 30 hari.</p>
           </div>
         ) : (
+          <div className="dev-tabel-scroll">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "0.5px solid rgba(0,0,0,0.06)" }}>
@@ -135,8 +144,10 @@ export default async function DeveloperPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

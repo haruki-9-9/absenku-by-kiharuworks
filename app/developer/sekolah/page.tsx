@@ -79,11 +79,20 @@ export default async function SekolahPage() {
       <style>{`
         .sekolah-row:hover { background: rgba(99,102,241,0.04); }
         .detail-btn:hover { background: rgba(99,102,241,0.15) !important; }
+        @media (max-width: 768px) {
+          .sekolah-header { flex-direction: column !important; gap: 12px !important; align-items: stretch !important; }
+          .sekolah-header a { justify-content: center; }
+          .sekolah-table-wrap { display: none !important; }
+          .sekolah-cards { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .sekolah-cards { display: none !important; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Page header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div className="sekolah-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Manajemen Sekolah
@@ -107,7 +116,7 @@ export default async function SekolahPage() {
         </div>
 
         {/* Table card */}
-        <div style={{
+        <div className="sekolah-table-wrap" style={{
           background: "rgba(255,255,255,0.65)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
@@ -219,6 +228,59 @@ export default async function SekolahPage() {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Mobile card view */}
+        <div className="sekolah-cards" style={{ flexDirection: "column", gap: 10, display: "none" }}>
+          {sekolahList.length === 0 ? (
+            <div style={{
+              background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+              borderRadius: 16, padding: 32, textAlign: "center",
+              boxShadow: "0 8px 32px rgba(99,102,241,0.08)",
+            }}>
+              <p style={{ fontSize: 13, color: "#94a3b8" }}>Belum ada sekolah terdaftar.</p>
+            </div>
+          ) : sekolahList.map((sekolah) => (
+            <div key={sekolah.id} style={{
+              background: "rgba(255,255,255,0.65)", backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)", border: "0.5px solid rgba(255,255,255,0.9)",
+              borderRadius: 16, padding: "14px 16px",
+              boxShadow: "0 4px 16px rgba(99,102,241,0.06)",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{sekolah.nama}</p>
+                  {sekolah.alamat && (
+                    <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{sekolah.alamat}</p>
+                  )}
+                </div>
+                <Link
+                  href={`/developer/sekolah/${sekolah.id}`}
+                  style={{
+                    fontSize: 11, fontWeight: 600, color: "#6366f1",
+                    textDecoration: "none", padding: "5px 12px",
+                    background: "rgba(99,102,241,0.08)", borderRadius: 8,
+                    border: "0.5px solid rgba(99,102,241,0.2)", flexShrink: 0,
+                  }}
+                >
+                  Detail →
+                </Link>
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                <StatusBadge status={sekolah.langganan?.status ?? null} />
+                <PaketBadge paket={sekolah.langganan?.paket ?? null} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#64748b" }}>
+                <span><strong style={{ color: "#334155" }}>{sekolah._count.kelas}</strong> kelas</span>
+                <span><strong style={{ color: "#334155" }}>{sekolah._count.siswa}</strong> siswa</span>
+                <span><strong style={{ color: "#334155" }}>{sekolah._count.users}</strong> user</span>
+                <span>
+                  {new Date(sekolah.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </>

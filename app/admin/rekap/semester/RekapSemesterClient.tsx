@@ -80,10 +80,17 @@ export default function RekapSemesterClient({
           @page { size: landscape; margin: 10mm; }
         }
         .btn-action:hover { opacity: 0.85; transform: translateY(-1px); }
+        .rekap-scroll-hint { display: none; }
+        @media (max-width: 768px) {
+          .rekap-action-btns { flex-direction: column !important; }
+          .rekap-action-btns button { width: 100%; justify-content: center; }
+          .rekap-header-meta { flex-direction: column !important; gap: 6px !important; }
+          .rekap-scroll-hint { display: flex !important; }
+        }
       `}</style>
 
       {/* Tombol aksi */}
-      <div className="no-print" style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+      <div className="no-print rekap-action-btns" style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
         <button
           className="btn-action"
           onClick={handleDownloadExcel}
@@ -144,7 +151,7 @@ export default function RekapSemesterClient({
           {alamatSekolah && (
             <p style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{alamatSekolah}</p>
           )}
-          <div style={{ display: "flex", gap: 20, marginTop: 10, flexWrap: "wrap" }}>
+          <div className="rekap-header-meta" style={{ display: "flex", gap: 20, marginTop: 10, flexWrap: "wrap" }}>
             {[
               { label: "Tahun Ajaran", value: tahunAjaran },
               { label: "Kelas", value: namaKelas },
@@ -158,14 +165,22 @@ export default function RekapSemesterClient({
           </div>
         </div>
 
+        {/* Indikator geser (mobile only) */}
+        <div className="no-print rekap-scroll-hint" style={{
+          alignItems: "center", gap: 6, padding: "6px 28px",
+          background: "rgba(99,102,241,0.05)", borderBottom: "0.5px solid rgba(0,0,0,0.04)",
+        }}>
+          <span style={{ fontSize: 11, color: "#6366f1", fontWeight: 600 }}>← Geser tabel untuk lihat bulan lainnya →</span>
+        </div>
+
         {/* Tabel */}
         <div style={{ overflowX: "auto" }}>
           <table style={{ borderCollapse: "collapse", minWidth: "100%", fontSize: 11 }}>
             <thead>
               {/* Baris 1: grup bulan */}
               <tr style={{ background: "rgba(99,102,241,0.04)" }}>
-                <th rowSpan={2} style={{ ...thCell, width: 32 }}>No</th>
-                <th rowSpan={2} style={{ ...thCell, width: 170, textAlign: "left", paddingLeft: 14 }}>Nama Siswa</th>
+                <th rowSpan={2} style={{ ...thCell, width: 32, position: "sticky", left: 0, zIndex: 3, background: "rgba(238,238,255,0.97)" }}>No</th>
+                <th rowSpan={2} style={{ ...thCell, width: 170, textAlign: "left", paddingLeft: 14, position: "sticky", left: 32, zIndex: 3, background: "rgba(238,238,255,0.97)", boxShadow: "2px 0 4px rgba(0,0,0,0.05)" }}>Nama Siswa</th>
                 {bulanList.map((b) => (
                   <th
                     key={`${b.tahun}-${b.bulan}`}
@@ -222,8 +237,8 @@ export default function RekapSemesterClient({
                       background: stripeBg,
                     }}
                   >
-                    <td style={{ ...tdCell, color: "#94a3b8", fontWeight: 600 }}>{siswa.nomorAbsen}</td>
-                    <td style={{ ...tdCell, textAlign: "left", paddingLeft: 14, color: "#0f172a", fontWeight: 600 }}>
+                    <td style={{ ...tdCell, color: "#94a3b8", fontWeight: 600, position: "sticky", left: 0, zIndex: 1, background: isStripe ? "rgba(238,238,255,0.97)" : "rgba(255,255,255,0.97)" }}>{siswa.nomorAbsen}</td>
+                    <td style={{ ...tdCell, textAlign: "left", paddingLeft: 14, color: "#0f172a", fontWeight: 600, position: "sticky", left: 32, zIndex: 1, background: isStripe ? "rgba(238,238,255,0.97)" : "rgba(255,255,255,0.97)", boxShadow: "2px 0 4px rgba(0,0,0,0.05)" }}>
                       {siswa.nama}
                     </td>
 
@@ -269,7 +284,7 @@ export default function RekapSemesterClient({
               {/* Baris total */}
               {siswaData.length > 0 && (
                 <tr style={{ borderTop: "1px solid rgba(99,102,241,0.15)", background: "rgba(99,102,241,0.04)" }}>
-                  <td colSpan={2} style={{ ...tdCell, textAlign: "right", paddingRight: 14, fontWeight: 700, color: "#475569", fontSize: 11 }}>
+                  <td colSpan={2} style={{ ...tdCell, textAlign: "right", paddingRight: 14, fontWeight: 700, color: "#475569", fontSize: 11, position: "sticky", left: 0, zIndex: 1, background: "rgba(238,238,255,0.97)", boxShadow: "2px 0 4px rgba(0,0,0,0.05)" }}>
                     TOTAL
                   </td>
                   {bulanList.map((b) => {

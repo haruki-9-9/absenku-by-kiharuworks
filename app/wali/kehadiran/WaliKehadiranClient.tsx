@@ -95,11 +95,18 @@ export default function WaliKehadiranClient({
       <style>{`
         .refresh-btn:hover { background: rgba(99,102,241,0.12) !important; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          .wali-kehadiran-header { flex-direction: column !important; align-items: stretch !important; }
+          .wali-kehadiran-header button { justify-content: center; }
+          .wali-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .wali-tabel-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .wali-tabel-scroll table { min-width: 480px; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+        <div className="wali-kehadiran-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               Kehadiran Hari Ini
@@ -143,7 +150,7 @@ export default function WaliKehadiranClient({
 
         {/* Stat cards */}
         {ringkasan && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+          <div className="wali-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
             {[
               { label: "Total Siswa", value: ringkasan.total, color: "#6366f1", bg: "rgba(99,102,241,0.08)", border: "rgba(99,102,241,0.15)" },
               { label: "Hadir", value: ringkasan.hadir, color: "#16a34a", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.15)" },
@@ -179,6 +186,7 @@ export default function WaliKehadiranClient({
               <p style={{ fontSize: 13, color: "#94a3b8" }}>Belum ada siswa di kelas ini.</p>
             </div>
           ) : (
+            <div className="wali-tabel-scroll">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "0.5px solid rgba(0,0,0,0.06)" }}>
@@ -238,6 +246,7 @@ export default function WaliKehadiranClient({
                 })}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       </div>

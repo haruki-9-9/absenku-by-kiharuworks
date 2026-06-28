@@ -51,19 +51,19 @@ Untuk tiap halaman: cek dulu kondisi sekarang, baru putuskan solusinya
 (card-view di mobile, atau scroll horizontal terkontrol + indikator, tergantung
 kompleksitas datanya). Tandai pendekatan yang dipakai di kolom catatan.
 
-- [ ] `app/admin/siswa/page.tsx`
-- [ ] `app/admin/pengguna/page.tsx`
-- [ ] `app/admin/kelas/page.tsx`
-- [ ] `app/admin/tahun-ajaran/page.tsx`
-- [ ] `app/admin/siswa-bermasalah/page.tsx`
-- [ ] `app/admin/kehadiran/KehadiranClient.tsx`
-- [ ] `app/admin/OverviewKehadiranWidget.tsx`
-- [ ] `app/admin/rekap/bulanan/RekapBulananClient.tsx` — **paling sulit**, grid siswa×tanggal(1-31). Kemungkinan: biarkan scroll horizontal + sticky kolom nama siswa + indikator visual "geser →"
-- [ ] `app/admin/rekap/semester/RekapSemesterClient.tsx`
-- [ ] `app/wali/kehadiran/WaliKehadiranClient.tsx`
-- [ ] `app/developer/page.tsx`
-- [ ] `app/developer/sekolah/page.tsx`
-- [ ] `app/developer/sekolah/[id]/page.tsx`
+- [x] `app/admin/siswa/page.tsx` — card view di mobile
+- [x] `app/admin/pengguna/page.tsx` — card view di mobile
+- [x] `app/admin/kelas/page.tsx` — card view di mobile
+- [x] `app/admin/tahun-ajaran/page.tsx` — header responsive + tabel semester scroll horizontal
+- [x] `app/admin/siswa-bermasalah/page.tsx` — card view + stat grid 3→2 kolom
+- [x] `app/admin/kehadiran/KehadiranClient.tsx` — stat grid 5→3 kolom + tabel scroll horizontal
+- [x] `app/admin/OverviewKehadiranWidget.tsx` — stat grid 4→2 kolom + tabel scroll horizontal
+- [x] `app/admin/rekap/bulanan/RekapBulananClient.tsx` — sticky kolom No+Nama Siswa, indikator "geser tabel →" khusus mobile, tombol aksi & header meta stack di mobile (grid sudah ada scroll horizontal dari awal)
+- [x] `app/admin/rekap/semester/RekapSemesterClient.tsx` — sticky kolom No+Nama Siswa (termasuk header rowSpan & baris total), indikator geser, tombol aksi & header meta stack di mobile
+- [x] `app/wali/kehadiran/WaliKehadiranClient.tsx` — stat grid 5→2 kolom, header column di mobile, tabel scroll horizontal
+- [x] `app/developer/page.tsx` — stat grid 4→2 kolom, tabel langganan mau habis scroll horizontal
+- [x] `app/developer/sekolah/page.tsx` — card view di mobile (8 kolom tabel desktop → card ringkas)
+- [x] `app/developer/sekolah/[id]/page.tsx` — header column di mobile, stat grid 3→2, info grid 4→2 & 3→2, tabel user scroll horizontal
 
 ## Pekerjaan 4 — Halaman Form
 
@@ -97,9 +97,11 @@ Kemungkinan sudah cukup aman (pakai flex column), tinggal verifikasi padding/leb
 ## Status Terakhir
 
 **Tanggal sesi**: 2026-06-28
-**Selesai sampai**: Pekerjaan 2 selesai semua (4 layout diupdate, 4 client wrapper baru dibuat). Belum dites visual di browser.
-**Belum dites**: Semua perlu dites di mobile devtools:
-  - Admin: cek hamburger buka/tutup drawer, semua 11 menu tampil, konten tidak di-cover topbar
-  - Sekretaris/Wali/Developer: cek bottom nav muncul, active state benar, konten tidak tertutup bottom nav
-**Next**: Pekerjaan 3 — audit & fix halaman bertabel/grid lebar. Mulai dari yang paling sering dipakai (kehadiran, siswa) sebelum rekap bulanan yang paling kompleks.
-**Catatan lain**: BottomNav & MobileDrawer reuse type `NavItem` dari `SharedSidebar.tsx` — kalau ubah struktur `NavItem`, cek dampaknya ke semua wrapper juga.
+**Selesai sampai**: Pekerjaan 3 **selesai semua** (13/13 file). Semua halaman bertabel/grid lebar sudah dapat solusi mobile (card-view untuk tabel ringkas, scroll horizontal + sticky kolom untuk grid kompleks rekap bulanan/semester). 6 file final sudah dikirim ke Haru.
+**Belum dites**: Semua perlu dites di mobile devtools (belum pernah dites visual sejak Pekerjaan 1):
+  - Admin: hamburger buka/tutup drawer, semua 11 menu tampil, card view siswa/pengguna/kelas/siswa-bermasalah tampil benar
+  - Sekretaris/Wali/Developer: bottom nav muncul, active state benar, konten tidak tertutup bottom nav
+  - Rekap Bulanan & Semester: scroll horizontal + sticky kolom No/Nama berfungsi dan tidak tumpang tindih dengan konten lain saat di-scroll, indikator "geser →" tampil di mobile
+  - Developer/sekolah/[id]: grid info & stat menyusut dengan benar di layar sempit
+**Next**: Pekerjaan 4 — verifikasi halaman form (kemungkinan sudah cukup aman, tinggal cek padding/lebar input), lalu Pekerjaan 5 — re-test halaman sekretaris di layar sempit (iPhone SE ~320px).
+**Catatan lain**: BottomNav & MobileDrawer reuse type `NavItem` dari `SharedSidebar.tsx` — kalau ubah struktur `NavItem`, cek dampaknya ke semua wrapper juga. Untuk file rekap bulanan/semester, sticky column pakai `position: sticky` + background solid (bukan transparan) supaya konten yang ter-scroll di baliknya tidak tembus terlihat.
