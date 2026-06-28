@@ -23,15 +23,27 @@ Cara pakai: centang `[x]` setelah selesai DAN sudah dites. Update juga bagian
 
 - [x] Buat `components/shared/BottomNav.tsx` — dipakai sekretaris, wali, developer
 - [x] Buat `components/shared/MobileDrawer.tsx` — drawer slide-in khusus admin (lebih banyak menu)
-- [x] Buat `components/shared/MobileTopBar.tsx` — header ringkas mobile (logo + tombol hamburger untuk admin, atau logo + logout untuk yang pakai bottom nav)
+- [x] Buat `components/shared/MobileTopBar.tsx` — header ringkas mobile (logo + tombol hamburger untuk admin, atau logo saja untuk yang pakai bottom nav)
 - [x] Update `SharedSidebar.tsx` — tambah `display: none` di breakpoint mobile
 
 ## Pekerjaan 2 — Update Layout per Role
 
-- [ ] `app/admin/layout.tsx` — pasang `MobileTopBar` + `MobileDrawer`, sesuaikan padding main content di mobile
-- [ ] `app/sekretaris/layout.tsx` — pasang `BottomNav`, sesuaikan padding-bottom main content (supaya tidak ketutup bottom nav)
-- [ ] `app/wali/layout.tsx` — pasang `BottomNav`, sesuaikan padding-bottom main content
-- [ ] `app/developer/layout.tsx` — pasang `BottomNav`, sesuaikan padding-bottom main content
+- [x] `app/admin/layout.tsx` — pasang `MobileTopBar` + `MobileDrawer` via `AdminMobileNav` (client wrapper), header desktop disembunyikan di mobile, padding main content diubah di mobile
+- [x] `app/sekretaris/layout.tsx` — pasang `SekretarisBottomNav` (MobileTopBar + BottomNav), padding-bottom 80px di mobile
+- [x] `app/wali/layout.tsx` — pasang `WaliBottomNav` (MobileTopBar + BottomNav), padding-bottom 80px di mobile
+- [x] `app/developer/layout.tsx` — pasang `DeveloperBottomNav` (MobileTopBar + BottomNav), padding-bottom 80px di mobile
+
+**File baru yang dibuat di Pekerjaan 2:**
+- `components/admin/AdminMobileNav.tsx` — client component (useState untuk open/close drawer), berisi navItems admin lengkap
+- `components/sekretaris/SekretarisBottomNav.tsx` — client wrapper MobileTopBar + BottomNav
+- `components/wali/WaliBottomNav.tsx` — client wrapper MobileTopBar + BottomNav
+- `components/developer/DeveloperBottomNav.tsx` — client wrapper MobileTopBar + BottomNav
+
+**Catatan implementasi:**
+- Layout tetap server component; state drawer dipisah ke client component wrapper
+- Desktop header disembunyikan di mobile via CSS class `.absenku-desktop-header`
+- Main content padding mobile: sekretaris/wali/developer pakai `padding-bottom: 80px` supaya konten tidak tertutup bottom nav; admin cukup `padding: 16px` (tidak ada bottom nav)
+- Icon size di BottomNav wrapper: 20px (lebih besar dari sidebar 16px, supaya lebih tap-friendly)
 
 ## Pekerjaan 3 — Halaman dengan Tabel/Grid Lebar
 
@@ -85,6 +97,9 @@ Kemungkinan sudah cukup aman (pakai flex column), tinggal verifikasi padding/leb
 ## Status Terakhir
 
 **Tanggal sesi**: 2026-06-28
-**Selesai sampai**: Pekerjaan 1 selesai dibuat (4 file: BottomNav, MobileDrawer, MobileTopBar baru + SharedSidebar diubah). Sudah dicek tipe TypeScript (bersih, tidak ada error baru). **Belum dipasang** ke layout manapun — itu Pekerjaan 2.
-**Belum dites**: Belum pernah dirender di browser asli sama sekali (cuma dicek tipe). Setelah Pekerjaan 2 (dipasang ke layout), wajib dites visual di device/devtools mobile emulator.
-**Catatan lain**: BottomNav & MobileDrawer reuse type `NavItem` dari `SharedSidebar.tsx` — kalau ubah struktur `NavItem`, cek dampaknya ke 2 file ini juga.
+**Selesai sampai**: Pekerjaan 2 selesai semua (4 layout diupdate, 4 client wrapper baru dibuat). Belum dites visual di browser.
+**Belum dites**: Semua perlu dites di mobile devtools:
+  - Admin: cek hamburger buka/tutup drawer, semua 11 menu tampil, konten tidak di-cover topbar
+  - Sekretaris/Wali/Developer: cek bottom nav muncul, active state benar, konten tidak tertutup bottom nav
+**Next**: Pekerjaan 3 — audit & fix halaman bertabel/grid lebar. Mulai dari yang paling sering dipakai (kehadiran, siswa) sebelum rekap bulanan yang paling kompleks.
+**Catatan lain**: BottomNav & MobileDrawer reuse type `NavItem` dari `SharedSidebar.tsx` — kalau ubah struktur `NavItem`, cek dampaknya ke semua wrapper juga.

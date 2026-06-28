@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
+import AdminMobileNav from "@/components/admin/AdminMobileNav";
 
 export default async function AdminLayout({
   children,
@@ -61,11 +62,15 @@ export default async function AdminLayout({
         />
       </div>
 
+      {/* Sidebar desktop (hidden on mobile via SharedSidebar internal style) */}
       <div
         style={{ width: 220, flexShrink: 0, position: "relative", zIndex: 10 }}
       >
         <Sidebar />
       </div>
+
+      {/* Mobile nav: TopBar + Drawer (only visible on mobile) */}
+      <AdminMobileNav user={{ name: user.name, email: user.email }} />
 
       <div
         style={{
@@ -78,16 +83,38 @@ export default async function AdminLayout({
           zIndex: 1,
         }}
       >
-        <Header user={user} />
+        {/* Desktop header (hidden on mobile) */}
+        <div className="absenku-desktop-header">
+          <Header user={user} />
+        </div>
+        <style>{`
+          .absenku-desktop-header { display: block; }
+          @media (max-width: 768px) {
+            .absenku-desktop-header { display: none; }
+          }
+        `}</style>
+
         <main
           style={{
             flex: 1,
             overflowY: "auto",
-            padding: "28px 32px",
             background: "transparent",
           }}
         >
-          {children}
+          <div className="absenku-main-padding">
+            {children}
+          </div>
+          <style>{`
+            .absenku-main-padding {
+              padding: 28px 32px;
+            }
+            @media (max-width: 768px) {
+              .absenku-main-padding {
+                padding: 16px;
+                padding-top: 16px;
+              }
+            }
+          `}</style>
         </main>
       </div>
     </div>
