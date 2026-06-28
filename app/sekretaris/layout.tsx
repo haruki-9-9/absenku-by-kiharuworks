@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/sekretaris/Sidebar";
-import Header from "@/components/admin/Header";
+import Header from "@/components/shared/SharedHeader";
 
 export default async function SekretarisLayout({
   children,
