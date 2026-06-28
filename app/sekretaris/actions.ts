@@ -9,6 +9,16 @@ type StatusAbsensi = "H" | "S" | "I" | "A";
 
 type ActionResult = { success: boolean; message: string };
 
+const MAX_KETERANGAN_LENGTH = 200;
+
+function sanitizeKeterangan(input: string): string {
+  return input
+    // hapus control characters (termasuk \n\r berlebih) selain spasi biasa
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .trim()
+    .slice(0, MAX_KETERANGAN_LENGTH);
+}
+
 /**
  * Set/update status absensi 1 siswa untuk hari ini.
  * Hanya bisa dipanggil oleh SEKRETARIS yang ditugaskan ke kelas siswa tsb,
@@ -51,10 +61,16 @@ export async function setStatusAbsensiAction(
   }
 
   const tanggalHariIni = getTanggalHariIni(zonaWaktu);
-  const keteranganBersih = status === "H" ? null : (keterangan?.trim() || null);
+  const keteranganBersih =
+    status === "H" ? null : (keterangan ? sanitizeKeterangan(keterangan) || null : null);
 
   try {
-    await prisma.absensi.upsert({
+    const existing = await prisma.absensi.findUnique({
+      where: { siswaId_tanggal: { siswaId, tanggal: tanggalHariIni } },
+      select: { id: true, status: true, keterangan: true },
+    });
+
+    const saved = await prisma.absensi.upsert({
       where: { siswaId_tanggal: { siswaId, tanggal: tanggalHariIni } },
       update: { status, keterangan: keteranganBersih, inputOleh: user.id },
       create: {
@@ -67,6 +83,27 @@ export async function setStatusAbsensiAction(
         inputOleh: user.id,
       },
     });
+
+    // Audit log — hanya catat kalau benar-benar ada perubahan
+    const adaPerubahan =
+      !existing || existing.status !== status || existing.keterangan !== keteranganBersih;
+
+    if (adaPerubahan) {
+      await prisma.logAbsensi.create({
+        data: {
+          sekolahId: user.sekolahId,
+          absensiId: saved.id,
+          siswaId,
+          tanggal: tanggalHariIni,
+          statusLama: existing?.status ?? null,
+          statusBaru: status,
+          keteranganLama: existing?.keterangan ?? null,
+          keteranganBaru: keteranganBersih,
+          diubahOleh: user.id,
+          diubahOlehNama: user.name,
+        },
+      }).catch((err) => console.error("Gagal mencatat log absensi:", err));
+    }
   } catch (error) {
     console.error(error);
     return { success: false, message: "Gagal menyimpan absensi." };

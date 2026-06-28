@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
+import { createSession } from "@/lib/auth/session";
 
 function validatePasswordStrength(password: string): string | null {
   if (password.length < 8) return "Password minimal 8 karakter.";
@@ -47,7 +48,23 @@ export async function gantiPasswordAction(
     if (!valid) return { success: false, message: "Password lama tidak sesuai." };
 
     const hashed = await hashPassword(passwordBaru);
-    await prisma.user.update({ where: { id: user.id }, data: { password: hashed } });
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashed, sessionVersion: { increment: 1 } },
+      include: { sekolah: { include: { langganan: true } } },
+    });
+
+    // Bump sessionVersion akan membuat semua sesi lama (termasuk sesi saat ini) invalid.
+    // Buat ulang sesi untuk device ini saja dengan versi terbaru, supaya user tidak
+    // ke-logout dari device yang sedang dipakai — tapi device lain otomatis ter-logout.
+    await createSession({
+      userId: updated.id,
+      email: updated.email,
+      role: updated.role,
+      sekolahId: updated.sekolahId ?? null,
+      langgananStatus: updated.sekolah?.langganan?.status ?? null,
+      sessionVersion: updated.sessionVersion,
+    });
 
     return { success: true, message: "Password berhasil diubah." };
   } catch (error) {

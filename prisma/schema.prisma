@@ -57,6 +57,7 @@ model User {
   role          Role      @default(SEKRETARIS)
   isActive      Boolean   @default(true)
   sekolahId     String?
+  sessionVersion Int      @default(0)
 
   // Relations
   sessions      Session[]
@@ -335,7 +336,20 @@ model HariLibur {
 // LOGIN ATTEMPT (rate limiting)
 // ─────────────────────────────────────────────
 
-model LoginAttempt {\n  id          String   @id @default(cuid())\n  email       String\n  ip          String\n  success     Boolean  @default(false)\n  createdAt   DateTime @default(now())\n\n  @@index([email, createdAt])\n  @@index([ip, createdAt])\n  @@map(\"login_attempt\")\n}\n\n// ─────────────────────────────────────────────\n// ABSENSI
+model LoginAttempt {
+  id          String   @id @default(cuid())
+  email       String
+  ip          String
+  success     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ip, createdAt])
+  @@map("login_attempt")
+}
+
+// ─────────────────────────────────────────────
+// ABSENSI
 // ─────────────────────────────────────────────
 
 model Absensi {
@@ -358,4 +372,28 @@ model Absensi {
   @@index([sekolahId, kelasId, tanggal])
   @@index([siswaId, tanggal])
   @@map("absensi")
+}
+
+// ─────────────────────────────────────────────
+// LOG ABSENSI (audit trail)
+// ─────────────────────────────────────────────
+
+model LogAbsensi {
+  id           String   @id @default(cuid())
+  sekolahId    String
+  absensiId    String
+  siswaId      String
+  tanggal      DateTime @db.Date
+  statusLama   StatusAbsensi?
+  statusBaru   StatusAbsensi
+  keteranganLama String?
+  keteranganBaru String?
+  diubahOleh   String
+  diubahOlehNama String
+  createdAt    DateTime @default(now())
+
+  @@index([sekolahId, tanggal])
+  @@index([absensiId])
+  @@index([siswaId, tanggal])
+  @@map("log_absensi")
 }

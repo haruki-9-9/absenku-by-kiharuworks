@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const SESSION_COOKIE_NAME = "absenku_session";
+// __Host- prefix wajib Secure + path "/" + tanpa atribut Domain — hanya valid di HTTPS.
+// Harus sama persis dengan logika di lib/auth/session.ts.
+const SESSION_COOKIE_NAME =
+  process.env.NODE_ENV === "production" ? "__Host-absenku_session" : "absenku_session";
+const LEGACY_COOKIE_NAME = "absenku_session";
 
 function getSecretKey() {
   const secret = process.env.AUTH_SECRET;
@@ -25,7 +29,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const token =
+    request.cookies.get(SESSION_COOKIE_NAME)?.value ??
+    request.cookies.get(LEGACY_COOKIE_NAME)?.value;
 
   if (!token) {
     if (isLoginRoute || isExpiredRoute) return NextResponse.next();
@@ -35,23 +41,16 @@ export async function middleware(request: NextRequest) {
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
     const role            = String(payload.role || "");
-    const userId          = String(payload.userId || "");
     const langgananStatus = String(payload.langgananStatus || "");
 
-    // ── Session invalidation: cek isActive user di DB ──
-    // Hanya untuk protected routes, skip untuk login/expired
-    if (!isLoginRoute && !isExpiredRoute && userId) {
-      const res = await fetch(`${request.nextUrl.origin}/api/auth/check-active?userId=${userId}`, {
-        headers: { cookie: request.headers.get("cookie") || "" },
-      });
-
-      if (!res.ok) {
-        // User tidak aktif atau tidak ditemukan — paksa logout
-        const response = NextResponse.redirect(new URL("/login", request.url));
-        response.cookies.delete(SESSION_COOKIE_NAME);
-        return response;
-      }
-    }
+    // Catatan: pengecekan isActive/sessionVersion (apakah sesi ini sudah di-invalidate
+    // oleh admin — dinonaktifkan, reset password, dsb) TIDAK dilakukan di sini.
+    // Middleware hanya verifikasi tanda tangan JWT (cepat, tanpa query DB).
+    // Validasi sebenarnya terjadi di getCurrentUser() yang dipanggil oleh setiap
+    // layout dashboard (developer/admin/sekretaris/wali) dan setiap server action,
+    // yang sudah pasti query DB sekali per page-load — jadi tidak ada penundaan.
+    // Worst case: user yang baru dinonaktifkan masih bisa lewat middleware untuk
+    // satu navigasi, tapi langsung ditolak begitu layout me-render (redirect /login).
 
     // Sudah login → redirect ke dashboard masing-masing
     if (isLoginRoute) {
@@ -86,6 +85,7 @@ export async function middleware(request: NextRequest) {
     if (isLoginRoute || isExpiredRoute) return NextResponse.next();
     const response = NextResponse.redirect(new URL("/login", request.url));
     response.cookies.delete(SESSION_COOKIE_NAME);
+    response.cookies.delete(LEGACY_COOKIE_NAME);
     return response;
   }
 }

@@ -180,6 +180,7 @@ export async function loginAction(
       role: user.role,
       sekolahId: user.sekolahId ?? null,
       langgananStatus,
+      sessionVersion: user.sessionVersion,
     });
 
     if (user.role === "DEVELOPER")    redirect("/developer");

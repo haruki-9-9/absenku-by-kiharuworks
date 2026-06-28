@@ -304,6 +304,30 @@ Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
 - [ ] Dashboard admin — widget real-time (status absensi hari ini per kelas, % kehadiran, alpa terbanyak)
 - [ ] Manajemen langganan dari dashboard developer (perpanjang, ganti paket)
 - [ ] Self-service onboarding (daftar + bayar sendiri)
+- [ ] Admin sekolah bypass jam lock (edit absensi tanggal apapun kapan saja)
+
+---
+
+## Sesi Security Hardening (2026-06-28)
+
+Hasil audit keamanan + perbaikan:
+
+- ✅ **Fixed bug kritis**: `prisma/schema.prisma` korup — model `LoginAttempt` tersimpan dengan literal `\n` (bukan baris baru asli), bikin schema gagal di-parse Prisma. Sudah diperbaiki.
+- ✅ **Migrasi `login_attempt` yang hilang**: kode di `app/login/actions.ts` sudah pakai `prisma.loginAttempt` untuk rate limiting, tapi belum ada migrasi SQL untuk tabelnya. Ditambahkan di migrasi baru.
+- ✅ **Session invalidation tanpa query DB di middleware**: sebelumnya middleware fetch internal ke `/api/auth/check-active` di **setiap** request ke route protected (1 query DB ekstra per request, lambat di edge+cold start). Diganti dengan JWT versioning:
+  - Field baru `User.sessionVersion` (Int, default 0)
+  - Disimpan di JWT payload saat login
+  - `getCurrentUser()` bandingkan `sessionVersion` JWT vs DB — kalau beda, sesi dianggap invalid
+  - `togglePenggunaAction`, `resetPasswordAction`, `gantiPasswordAction` semua bump `sessionVersion` saat relevan (nonaktifkan user / reset password / ganti password sendiri)
+  - Middleware sekarang HANYA verifikasi tanda tangan JWT (cepat, tanpa network call) — validasi isActive/sessionVersion terjadi natural di layout/server action yang sudah query DB
+  - Endpoint `/api/auth/check-active` **dihapus**, sudah tidak dipakai
+- ✅ **Cookie `__Host-` prefix**: di production, cookie session sekarang bernama `__Host-absenku_session` (wajib Secure+HTTPS). Di development tetap `absenku_session` (karena `__Host-` ditolak browser di non-HTTPS). Ada fallback baca cookie nama lama untuk user yang sesinya dibuat sebelum perubahan ini.
+- ✅ **Audit log absensi**: model baru `LogAbsensi` — catat setiap perubahan status/keterangan absensi (siapa, kapan, dari apa ke apa). Ditulis otomatis di `setStatusAbsensiAction` setiap ada perubahan nyata.
+- ✅ **Input sanitization keterangan absensi**: dibatasi 200 karakter + strip control characters di `app/sekretaris/actions.ts`. (Catatan: XSS klasik via render HTML sudah otomatis aman karena React escape semua teks — tidak ada `dangerouslySetInnerHTML` di codebase. Excel export pakai `cell.value = string`, bukan formula, jadi juga aman dari formula injection.)
+
+**File yang diubah**: `prisma/schema.prisma`, `prisma/migrations/20260628060000_security_hardening/migration.sql` (baru), `lib/auth/session.ts`, `lib/auth/get-current-user.ts`, `middleware.ts`, `app/login/actions.ts`, `app/admin/pengguna/actions.ts`, `app/actions/ganti-password-action.ts`, `app/sekretaris/actions.ts`. **Dihapus**: `app/api/auth/check-active/route.ts`.
+
+**PENTING sebelum deploy**: jalankan `npx prisma migrate dev` (atau `migrate deploy` di production) untuk apply migrasi baru ke Neon. Sandbox tempat perubahan ini dibuat tidak punya akses ke binary Prisma engine, jadi `prisma generate`/`migrate`/`validate` belum dijalankan otomatis — wajib dijalankan manual di environment Haru.
 
 ---
 

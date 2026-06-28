@@ -20,19 +20,26 @@ export default function SharedSidebar({ navItems, roleLabel }: SharedSidebarProp
   const pathname = usePathname();
 
   return (
-    <aside
-      style={{
-        width: 220,
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        background: "rgba(255,255,255,0.55)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        borderRight: "0.5px solid rgba(255,255,255,0.9)",
-        flexShrink: 0,
-      }}
-    >
+    <>
+      <style>{`
+        @media (max-width: 768px) {
+          .absenku-desktop-sidebar { display: none !important; }
+        }
+      `}</style>
+      <aside
+        className="absenku-desktop-sidebar"
+        style={{
+          width: 220,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          background: "rgba(255,255,255,0.55)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderRight: "0.5px solid rgba(255,255,255,0.9)",
+          flexShrink: 0,
+        }}
+      >
       {/* Logo */}
       <div
         style={{
@@ -139,5 +146,6 @@ export default function SharedSidebar({ navItems, roleLabel }: SharedSidebarProp
         </div>
       </div>
     </aside>
+    </>
   );
 }

@@ -107,7 +107,12 @@ export async function togglePenggunaAction(userId: string, isActive: boolean) {
   }
 
   try {
-    await prisma.user.update({ where: { id: userId }, data: { isActive } });
+    // Bump sessionVersion supaya sesi (JWT) lama milik user ini langsung invalid,
+    // terutama penting saat dinonaktifkan — jangan tunggu cookie expired 7 hari.
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive, sessionVersion: { increment: 1 } },
+    });
     return { success: true, message: "" };
   } catch (error) {
     console.error(error);
@@ -146,7 +151,10 @@ export async function resetPasswordAction(
     }
 
     const hashed = await hashPassword(passwordBaru);
-    await prisma.user.update({ where: { id: targetUserId }, data: { password: hashed } });
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: { password: hashed, sessionVersion: { increment: 1 } },
+    });
 
     revalidatePath("/admin/pengguna");
     return { success: true, message: `Password ${targetUser.name} berhasil direset.` };
