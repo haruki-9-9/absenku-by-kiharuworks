@@ -158,11 +158,20 @@ absenku/
 │   │       └── excel/
 │   │           ├── bulanan/route.ts      ✅ generate .xlsx rekap bulanan (exceljs)
 │   │           └── semester/route.ts     ✅ generate .xlsx rekap semester (exceljs)
-│   └── sekretaris/
-│       ├── layout.tsx                    ✅ glassmorphism
-│       ├── page.tsx                      ✅ fetch kelas + siswa + absensi hari ini + status jam lock
-│       ├── actions.ts                    ✅ setStatusAbsensiAction (upsert + validasi jam lock)
-│       └── AbsensiList.tsx               ✅ client component — tombol cepat H/S/I/A + keterangan inline
+│   └── wali/
+│       ├── layout.tsx                    ✅ glassmorphism + proteksi WALI_KELAS
+│       ├── page.tsx                      ✅ redirect ke /wali/kehadiran
+│       ├── kehadiran/
+│       │   ├── page.tsx                  ✅ fetch kelas wali + render WaliKehadiranClient
+│       │   └── WaliKehadiranClient.tsx   ✅ lihat absensi hari ini, read-only
+│       ├── rekap/
+│       │   ├── page.tsx                  ✅ pilih jenis rekap (bulanan/semester)
+│       │   ├── bulanan/
+│       │   │   └── page.tsx              ✅ reuse RekapBulananClient, scope kelas wali
+│       │   └── semester/
+│       │       └── page.tsx              ✅ reuse RekapSemesterClient, scope kelas wali
+│       └── ganti-password/
+│           └── page.tsx                  ✅
 ├── components/
 │   ├── auth/
 │   │   └── login-form.tsx
@@ -270,25 +279,31 @@ Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
   - ✅ Kelola Kelas — list + kuota bar + toggle aktif/nonaktif + enforcement `maxKelas`
   - ✅ Kelola Siswa — list + kolom kelas aktif + toggle aktif/nonaktif
   - ✅ Import siswa bulk via Excel (exceljs) — download template + upload + hasil import
-  - ✅ Kelola Pengguna — list SEKRETARIS & WALI_KELAS + tambah + toggle aktif/nonaktif
+  - ✅ Kelola Pengguna — list SEKRETARIS & WALI_KELAS + tambah + toggle aktif/nonaktif + reset password
   - ✅ Tahun Ajaran & Semester — list + toggle aktif
   - ✅ Konfigurasi — jamLock, batasAlpa, zonaWaktu (WIB/WITA/WIT)
   - ✅ **Rekap Bulanan** — grid siswa×tanggal, kode H/S/I/A berwarna, kolom ringkasan, cetak PDF (window.print()), download Excel
   - ✅ **Rekap Semester** — ringkasan S/I/A per bulan per siswa + total semester, cetak PDF, download Excel
+  - ✅ Manajemen Hari Libur (`/admin/hari-libur`) — tambah & hapus hari libur
+  - ✅ Laporan Siswa Bermasalah (`/admin/siswa-bermasalah`) — siswa dengan alpa > batasAlpa
+  - ✅ Kenaikan Kelas (`/admin/kenaikan-kelas`) — proses siswa naik kelas
+  - ✅ Ganti Password (`/admin/ganti-password`)
 - ✅ Dashboard Sekretaris (`/sekretaris`) — input absensi harian, jam lock, timezone-aware
+  - ✅ Ganti Password (`/sekretaris/ganti-password`)
+- ✅ Dashboard Wali Kelas (`/wali`) — layout, sidebar, header (glassmorphism):
+  - ✅ Kehadiran Hari Ini (`/wali/kehadiran`) — lihat status absensi kelas yang ditugaskan, read-only
+  - ✅ Rekap Bulanan (`/wali/rekap/bulanan`) — reuse `RekapBulananClient`, scope kelas sendiri
+  - ✅ Rekap Semester (`/wali/rekap/semester`) — reuse `RekapSemesterClient`, scope kelas sendiri
+  - ✅ Ganti Password (`/wali/ganti-password`)
+- ✅ Bug fix: nullable `dbUser.password` di `ganti-password-action.ts`
 
 ---
 
 ## Yang Belum Dikerjakan ⬜
 
-- [ ] **Dashboard Wali Kelas (`/wali`)** — lihat rekap kelas sendiri saja ← **NEXT**
-- [ ] **`HariLibur`** — model ada di schema dan sudah dipakai di logika rekap (sel abu-abu), tapi belum ada UI manajemen hari libur di dashboard admin
 - [ ] Dashboard admin — widget real-time (status absensi hari ini per kelas, % kehadiran, alpa terbanyak)
-- [ ] Laporan siswa bermasalah (alpa > batasAlpa)
-- [ ] Ganti password sendiri (sekretaris & admin)
-- [ ] Reset password sekretaris oleh admin
 - [ ] Manajemen langganan dari dashboard developer (perpanjang, ganti paket)
-- [ ] Fitur Proses Kenaikan Kelas
+- [ ] Self-service onboarding (daftar + bayar sendiri)
 
 ---
 
@@ -367,10 +382,11 @@ Navbar sticky + scroll-spy. Nomor WA: `6283818900667`.
 - Fitur Proses Kenaikan Kelas: admin pilih siswa yang naik, pilih kelas tujuan → `SiswaKelas` baru dibuat, `tanggalKeluar` kelas lama terisi
 - Data absensi lama tidak berubah
 
-### Dashboard Wali Kelas (belum dibangun)
-- Hanya bisa lihat rekap kelas yang ditugaskan ke mereka
-- Tidak bisa input absensi
-- Scope: rekap bulanan + rekap semester kelas sendiri
+### Dashboard Wali Kelas ✅ SELESAI
+- Hanya bisa lihat rekap kelas yang ditugaskan ke mereka (via `WaliKelas` model)
+- Tidak bisa input absensi — halaman kehadiran read-only
+- Scope: kehadiran hari ini + rekap bulanan + rekap semester kelas sendiri
+- Reuse `RekapBulananClient` dan `RekapSemesterClient` dari admin
 
 ---
 

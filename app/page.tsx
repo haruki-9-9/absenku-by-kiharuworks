@@ -494,13 +494,20 @@ export default function HomePage() {
               {p.popular && <div className="pricing-badge">⭐ Terpopuler</div>}
               <div className="pricing-plan">{p.plan}</div>
               {p.monthly ? (
-                <div className="pricing-price">
-                  Rp {(pricingPeriod === "bulanan" ? p.monthly : Math.round(p.yearly! / 12)).toLocaleString("id-ID")}
-                  <span>/bln</span>
-                  {pricingPeriod === "tahunan" && (
-                    <div style={{ fontSize: 11, color: "#22c55e", fontWeight: 500, marginTop: 3 }}>
-                      Rp {p.yearly!.toLocaleString("id-ID")}/tahun
-                    </div>
+                <div className="pricing-price" style={pricingPeriod === "tahunan" ? { fontSize: 24 } : {}}>
+                  {pricingPeriod === "bulanan" ? (
+                    <>
+                      Rp {p.monthly.toLocaleString("id-ID")}
+                      <span>/bln</span>
+                    </>
+                  ) : (
+                    <>
+                      Rp {p.yearly!.toLocaleString("id-ID")}
+                      <span>/thn</span>
+                      <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, marginTop: 3 }}>
+                        ≈ Rp {Math.round(p.yearly! / 12).toLocaleString("id-ID")}/bln
+                      </div>
+                    </>
                   )}
                 </div>
               ) : (

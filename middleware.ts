@@ -34,15 +34,31 @@ export async function middleware(request: NextRequest) {
 
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
-    const role             = String(payload.role || "");
-    const langgananStatus  = String(payload.langgananStatus || "");
+    const role            = String(payload.role || "");
+    const userId          = String(payload.userId || "");
+    const langgananStatus = String(payload.langgananStatus || "");
+
+    // ── Session invalidation: cek isActive user di DB ──
+    // Hanya untuk protected routes, skip untuk login/expired
+    if (!isLoginRoute && !isExpiredRoute && userId) {
+      const res = await fetch(`${request.nextUrl.origin}/api/auth/check-active?userId=${userId}`, {
+        headers: { cookie: request.headers.get("cookie") || "" },
+      });
+
+      if (!res.ok) {
+        // User tidak aktif atau tidak ditemukan — paksa logout
+        const response = NextResponse.redirect(new URL("/login", request.url));
+        response.cookies.delete(SESSION_COOKIE_NAME);
+        return response;
+      }
+    }
 
     // Sudah login → redirect ke dashboard masing-masing
     if (isLoginRoute) {
-      if (role === "DEVELOPER")    return NextResponse.redirect(new URL("/developer", request.url));
+      if (role === "DEVELOPER")     return NextResponse.redirect(new URL("/developer", request.url));
       if (role === "ADMIN_SEKOLAH") return NextResponse.redirect(new URL("/admin", request.url));
-      if (role === "SEKRETARIS")   return NextResponse.redirect(new URL("/sekretaris", request.url));
-      if (role === "WALI_KELAS")   return NextResponse.redirect(new URL("/wali", request.url));
+      if (role === "SEKRETARIS")    return NextResponse.redirect(new URL("/sekretaris", request.url));
+      if (role === "WALI_KELAS")    return NextResponse.redirect(new URL("/wali", request.url));
       return NextResponse.next();
     }
 
@@ -52,23 +68,25 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/langganan-habis", request.url));
     }
 
-    // Halaman langganan-habis: kalau langganan masih aktif, redirect ke dashboard
+    // Halaman langganan-habis: kalau masih aktif, redirect ke dashboard
     if (isExpiredRoute && isSekolahUser && langgananStatus !== "EXPIRED") {
       if (role === "ADMIN_SEKOLAH") return NextResponse.redirect(new URL("/admin", request.url));
-      if (role === "SEKRETARIS")   return NextResponse.redirect(new URL("/sekretaris", request.url));
-      if (role === "WALI_KELAS")   return NextResponse.redirect(new URL("/wali", request.url));
+      if (role === "SEKRETARIS")    return NextResponse.redirect(new URL("/sekretaris", request.url));
+      if (role === "WALI_KELAS")    return NextResponse.redirect(new URL("/wali", request.url));
     }
 
     // Proteksi route per role
-    if (isDeveloperRoute  && role !== "DEVELOPER")    return NextResponse.redirect(new URL("/login", request.url));
+    if (isDeveloperRoute  && role !== "DEVELOPER")     return NextResponse.redirect(new URL("/login", request.url));
     if (isAdminRoute      && role !== "ADMIN_SEKOLAH") return NextResponse.redirect(new URL("/login", request.url));
-    if (isSekretarisRoute && role !== "SEKRETARIS")   return NextResponse.redirect(new URL("/login", request.url));
-    if (isWaliRoute       && role !== "WALI_KELAS")   return NextResponse.redirect(new URL("/login", request.url));
+    if (isSekretarisRoute && role !== "SEKRETARIS")    return NextResponse.redirect(new URL("/login", request.url));
+    if (isWaliRoute       && role !== "WALI_KELAS")    return NextResponse.redirect(new URL("/login", request.url));
 
     return NextResponse.next();
   } catch {
     if (isLoginRoute || isExpiredRoute) return NextResponse.next();
-    return NextResponse.redirect(new URL("/login", request.url));
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete(SESSION_COOKIE_NAME);
+    return response;
   }
 }
 

@@ -332,7 +332,10 @@ model HariLibur {
 }
 
 // ─────────────────────────────────────────────
-// ABSENSI
+// LOGIN ATTEMPT (rate limiting)
+// ─────────────────────────────────────────────
+
+model LoginAttempt {\n  id          String   @id @default(cuid())\n  email       String\n  ip          String\n  success     Boolean  @default(false)\n  createdAt   DateTime @default(now())\n\n  @@index([email, createdAt])\n  @@index([ip, createdAt])\n  @@map(\"login_attempt\")\n}\n\n// ─────────────────────────────────────────────\n// ABSENSI
 // ─────────────────────────────────────────────
 
 model Absensi {
