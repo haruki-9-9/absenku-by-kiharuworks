@@ -3,18 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { togglePenggunaAction } from "./actions";
+import ResetPasswordModal from "./ResetPasswordModal";
 
 async function getPenggunaData(sekolahId: string) {
   return prisma.user.findMany({
-    where: {
-      sekolahId,
-      role: { in: ["SEKRETARIS", "WALI_KELAS"] },
-    },
+    where: { sekolahId, role: { in: ["SEKRETARIS", "WALI_KELAS"] } },
     orderBy: [{ isActive: "desc" }, { name: "asc" }],
     include: {
-      sekretaris: {
-        include: { kelas: { select: { nama: true } } },
-      },
+      sekretaris: { include: { kelas: { select: { nama: true } } } },
+      waliKelas: { include: { kelas: { select: { nama: true } } } },
     },
   });
 }
@@ -42,6 +39,7 @@ export default async function PenggunaPage() {
         .pengguna-row:hover { background: rgba(99,102,241,0.04) !important; }
         .btn-toggle:hover { opacity: 0.8; }
         .btn-tambah:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-reset:hover { opacity: 0.8; }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -100,13 +98,17 @@ export default async function PenggunaPage() {
                 </tr>
               </thead>
               <tbody>
-                {penggunaList.map((pengguna) => {
+                {penggunaList.map((pengguna, i) => {
                   const rc = roleColor[pengguna.role] ?? { bg: "rgba(148,163,184,0.1)", color: "#94a3b8" };
+                  const kelasNama = pengguna.sekretaris?.kelas.nama ?? pengguna.waliKelas?.kelas.nama ?? null;
                   return (
                     <tr
                       key={pengguna.id}
                       className="pengguna-row"
-                      style={{ borderBottom: "0.5px solid rgba(0,0,0,0.04)", transition: "background 0.15s" }}
+                      style={{
+                        borderBottom: i < penggunaList.length - 1 ? "0.5px solid rgba(0,0,0,0.04)" : "none",
+                        transition: "background 0.15s",
+                      }}
                     >
                       <td style={{ padding: "14px 20px" }}>
                         <p style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{pengguna.name}</p>
@@ -123,12 +125,12 @@ export default async function PenggunaPage() {
                         </span>
                       </td>
                       <td style={{ padding: "14px 20px" }}>
-                        {pengguna.sekretaris?.kelas.nama ? (
+                        {kelasNama ? (
                           <span style={{
                             padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600,
                             background: "rgba(99,102,241,0.08)", color: "#6366f1",
                           }}>
-                            {pengguna.sekretaris.kelas.nama}
+                            {kelasNama}
                           </span>
                         ) : (
                           <span style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>—</span>
@@ -149,25 +151,31 @@ export default async function PenggunaPage() {
                         </span>
                       </td>
                       <td style={{ padding: "14px 20px" }}>
-                        <form action={async () => {
-                          "use server";
-                          await togglePenggunaAction(pengguna.id, !pengguna.isActive);
-                        }}>
-                          <button
-                            type="submit"
-                            className="btn-toggle"
-                            style={{
-                              padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
-                              border: "0.5px solid",
-                              borderColor: pengguna.isActive ? "rgba(239,68,68,0.3)" : "rgba(99,102,241,0.3)",
-                              background: pengguna.isActive ? "rgba(239,68,68,0.06)" : "rgba(99,102,241,0.06)",
-                              color: pengguna.isActive ? "#ef4444" : "#6366f1",
-                              cursor: "pointer", transition: "all 0.2s",
-                            }}
-                          >
-                            {pengguna.isActive ? "Nonaktifkan" : "Aktifkan"}
-                          </button>
-                        </form>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <form action={async () => {
+                            "use server";
+                            await togglePenggunaAction(pengguna.id, !pengguna.isActive);
+                          }}>
+                            <button
+                              type="submit"
+                              className="btn-toggle"
+                              style={{
+                                padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                                border: "0.5px solid",
+                                borderColor: pengguna.isActive ? "rgba(239,68,68,0.3)" : "rgba(99,102,241,0.3)",
+                                background: pengguna.isActive ? "rgba(239,68,68,0.06)" : "rgba(99,102,241,0.06)",
+                                color: pengguna.isActive ? "#ef4444" : "#6366f1",
+                                cursor: "pointer", transition: "all 0.2s",
+                              }}
+                            >
+                              {pengguna.isActive ? "Nonaktifkan" : "Aktifkan"}
+                            </button>
+                          </form>
+                          <ResetPasswordModal
+                            userId={pengguna.id}
+                            userName={pengguna.name}
+                          />
+                        </div>
                       </td>
                     </tr>
                   );

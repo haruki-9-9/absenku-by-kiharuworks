@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import LanggananForm from "./LanggananForm";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -201,8 +202,9 @@ export default async function DetailSekolahPage({
 
         {/* Info Langganan */}
         <div style={cardStyle}>
-          <div style={cardHeaderStyle}>
+          <div style={{ ...cardHeaderStyle, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>Langganan</p>
+            <LanggananForm sekolahId={sekolah.id} langganan={l ?? null} />
           </div>
           <div style={{ padding: "20px 24px" }}>
             {l ? (
