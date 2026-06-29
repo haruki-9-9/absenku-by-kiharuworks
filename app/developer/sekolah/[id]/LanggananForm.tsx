@@ -76,8 +76,15 @@ export default function LanggananForm({
 
   return (
     <>
+      <style>{`
+        .ll-paket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .ll-tanggal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 480px) {
+          .ll-paket-grid { grid-template-columns: repeat(2, 1fr); }
+          .ll-tanggal-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
       <button
-        onClick={() => setOpen(true)}
         style={{
           padding: "9px 18px", borderRadius: 12, fontSize: 13, fontWeight: 600,
           background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
@@ -143,7 +150,7 @@ export default function LanggananForm({
                 {/* Paket */}
                 <div>
                   <label style={labelStyle}>Paket</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                  <div className="ll-paket-grid">
                     {PAKET_OPTIONS.map((p) => (
                       <label key={p.value} style={{ cursor: "pointer" }}>
                         <input
@@ -198,7 +205,7 @@ export default function LanggananForm({
                 </div>
 
                 {/* Tanggal */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div className="ll-tanggal-grid">
                   <div>
                     <label style={labelStyle}>Tanggal Mulai</label>
                     <input

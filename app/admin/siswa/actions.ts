@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
+import { revalidatePath } from "next/cache";
 
 export async function tambahSiswaAction(
   _prevState: { success: boolean; message: string },
@@ -13,11 +14,12 @@ export async function tambahSiswaAction(
     return { success: false, message: "Tidak terautentikasi." };
   }
 
-  const nis = String(formData.get("nis") || "").trim();
   const nama = String(formData.get("nama") || "").trim();
+  const nis = String(formData.get("nis") || "").trim();
   const jenisKelamin = String(formData.get("jenisKelamin") || "").trim();
+  const kelasId = String(formData.get("kelasId") || "").trim();
 
-  if (!nis || !nama || !jenisKelamin) {
+  if (!nama || !nis || !jenisKelamin || !kelasId) {
     return { success: false, message: "Semua field wajib diisi." };
   }
 
@@ -25,14 +27,26 @@ export async function tambahSiswaAction(
     return { success: false, message: "Jenis kelamin tidak valid." };
   }
 
+  // Pastikan kelas milik sekolah ini
+  const kelas = await prisma.kelas.findFirst({
+    where: { id: kelasId, sekolahId: user.sekolahId, isActive: true },
+  });
+  if (!kelas) {
+    return { success: false, message: "Kelas tidak valid." };
+  }
+
   try {
     const existing = await prisma.siswa.findUnique({
       where: { sekolahId_nis: { sekolahId: user.sekolahId, nis } },
     });
-
     if (existing) {
       return { success: false, message: `NIS "${nis}" sudah terdaftar.` };
     }
+
+    // Hitung nomor absen berikutnya di kelas ini (urutan berdasarkan nama, append di akhir)
+    const jumlahSiswa = await prisma.siswaKelas.count({
+      where: { kelasId, tanggalKeluar: null },
+    });
 
     await prisma.siswa.create({
       data: {
@@ -41,6 +55,12 @@ export async function tambahSiswaAction(
         nama,
         jenisKelamin,
         isActive: true,
+        kelas: {
+          create: {
+            kelasId,
+            nomorAbsen: jumlahSiswa + 1,
+          },
+        },
       },
     });
   } catch (error) {
@@ -62,7 +82,7 @@ export async function toggleSiswaAction(siswaId: string, isActive: boolean) {
       where: { id: siswaId },
       data: { isActive },
     });
-
+    revalidatePath("/admin/siswa");
     return { success: true, message: "" };
   } catch (error) {
     console.error(error);

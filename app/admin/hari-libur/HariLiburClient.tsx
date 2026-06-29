@@ -86,6 +86,8 @@ export default function HariLiburClient({ hariLiburList }: Props) {
         .hl-input:focus { border-color: rgba(99,102,241,0.5) !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
         .btn-tambah:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
         .btn-hapus:hover { background: rgba(239,68,68,0.12) !important; color: #dc2626 !important; }
+        .hl-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+        @media (max-width: 768px) { .hl-layout { grid-template-columns: 1fr; } }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -100,7 +102,7 @@ export default function HariLiburClient({ hariLiburList }: Props) {
         </div>
 
         {/* Layout 2 kolom */}
-        <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 24, alignItems: "start" }}>
+        <div className="hl-layout">
 
           {/* Kiri — Form tambah */}
           <div style={{ ...cardStyle, padding: 24, display: "flex", flexDirection: "column", gap: 18 }}>

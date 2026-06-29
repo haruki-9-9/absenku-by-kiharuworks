@@ -62,6 +62,13 @@ export default function TambahSekolahForm() {
           box-shadow: 0 0 0 3px rgba(99,102,241,0.08) !important;
         }
         .absenku-input::placeholder { color: #cbd5e1; }
+        .ts-tanggal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .ts-actions { display: flex; align-items: center; gap: 12px; }
+        @media (max-width: 768px) {
+          .ts-tanggal-grid { grid-template-columns: 1fr; }
+          .ts-actions { flex-direction: column; }
+          .ts-actions a, .ts-actions button { width: 100%; text-align: center; }
+        }
       `}</style>
 
       <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 640 }}>
@@ -155,7 +162,7 @@ export default function TambahSekolahForm() {
             </select>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="ts-tanggal-grid">
             <div>
               <label style={labelStyle}>Tanggal Mulai <span style={{ color: "#ef4444" }}>*</span></label>
               <input
@@ -176,7 +183,7 @@ export default function TambahSekolahForm() {
         </div>
 
         {/* Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="ts-actions">
           <button
             type="submit"
             disabled={pending}

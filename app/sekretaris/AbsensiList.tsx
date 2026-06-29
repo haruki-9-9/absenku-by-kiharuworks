@@ -67,6 +67,24 @@ export default function AbsensiList({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <style>{`
+        .ab-row { display: flex; align-items: center; justify-content: space-between; gap: 16; flex-wrap: wrap; }
+        .ab-buttons { display: flex; gap: 6; flex-shrink: 0; }
+        .ab-btn { width: 34px; height: 34px; border-radius: 10px; font-size: 13px; }
+        .ab-keterangan { display: flex; gap: 8; margin-top: 10px; padding-left: 40px; }
+        @media (max-width: 480px) {
+          .ab-row { flex-wrap: nowrap; }
+          .ab-btn { width: 30px; height: 30px; border-radius: 8px; font-size: 12px; }
+          .ab-buttons { gap: 4; }
+          .ab-keterangan { padding-left: 0; flex-direction: column; }
+          .ab-keterangan input { width: 100%; }
+          .ab-keterangan button { width: 100%; }
+        }
+        @media (max-width: 340px) {
+          .ab-row { flex-wrap: wrap; }
+          .ab-buttons { width: 100%; justify-content: flex-end; }
+        }
+      `}</style>
       {errorMsg && (
         <div style={{
           padding: "10px 14px", borderRadius: 10, fontSize: 12,
@@ -94,7 +112,7 @@ export default function AbsensiList({
                 padding: "14px 20px",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+              <div className="ab-row">
                 <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
                   <span style={{
                     display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -111,7 +129,7 @@ export default function AbsensiList({
                   </div>
                 </div>
 
-                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                <div className="ab-buttons">
                   {(Object.keys(STATUS_CONFIG) as StatusAbsensi[]).map((s) => {
                     const cfg = STATUS_CONFIG[s];
                     const isActive = state.status === s;
@@ -121,9 +139,9 @@ export default function AbsensiList({
                         type="button"
                         disabled={terkunci || isPending}
                         onClick={() => handleSetStatus(siswa.id, s)}
+                        className="ab-btn"
                         style={{
-                          width: 34, height: 34, borderRadius: 10,
-                          fontSize: 13, fontWeight: 700,
+                          fontWeight: 700,
                           border: isActive ? "none" : "0.5px solid rgba(0,0,0,0.1)",
                           background: isActive ? cfg.bg : "rgba(255,255,255,0.6)",
                           color: isActive ? cfg.color : "#94a3b8",
@@ -140,7 +158,7 @@ export default function AbsensiList({
               </div>
 
               {isEditing && !terkunci && (
-                <div style={{ display: "flex", gap: 8, marginTop: 10, paddingLeft: 40 }}>
+                <div className="ab-keterangan">
                   <input
                     type="text"
                     placeholder="Keterangan (opsional)"

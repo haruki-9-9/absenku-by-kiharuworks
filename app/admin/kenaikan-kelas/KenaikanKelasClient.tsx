@@ -49,6 +49,11 @@ export default function KenaikanKelasClient({ kelasList }: { kelasList: Kelas[] 
       <style>{`
         select:focus { border-color: rgba(99,102,241,0.5) !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important; }
         .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+        .kk-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: end; }
+        @media (max-width: 768px) {
+          .kk-grid { grid-template-columns: 1fr; }
+          .kk-arrow { display: none !important; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 560 }}>
@@ -84,7 +89,7 @@ export default function KenaikanKelasClient({ kelasList }: { kelasList: Kelas[] 
           <>
             {/* Form pilih kelas */}
             <div style={{ ...cardStyle, padding: 28 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "end" }}>
+              <div className="kk-grid">
                 {/* Kelas asal */}
                 <div>
                   <label style={labelStyle}>Kelas Asal</label>
@@ -105,7 +110,7 @@ export default function KenaikanKelasClient({ kelasList }: { kelasList: Kelas[] 
                 </div>
 
                 {/* Panah */}
-                <div style={{ paddingBottom: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div className="kk-arrow" style={{ paddingBottom: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <div style={{
                     width: 36, height: 36, borderRadius: "50%",
                     background: siapProses ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "rgba(148,163,184,0.15)",
