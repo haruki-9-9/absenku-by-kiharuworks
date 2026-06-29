@@ -62,12 +62,16 @@ export default async function AdminLayout({
         />
       </div>
 
-      {/* Sidebar desktop (hidden on mobile via SharedSidebar internal style) */}
-      <div
-        style={{ width: 220, flexShrink: 0, position: "relative", zIndex: 10 }}
-      >
+      {/* Sidebar desktop (hidden on mobile) */}
+      <div className="absenku-sidebar-wrap">
         <Sidebar />
       </div>
+      <style>{`
+        .absenku-sidebar-wrap { width: 220px; flex-shrink: 0; position: relative; z-index: 10; }
+        @media (max-width: 768px) {
+          .absenku-sidebar-wrap { display: none; }
+        }
+      `}</style>
 
       {/* Mobile nav: TopBar + Drawer (only visible on mobile) */}
       <AdminMobileNav user={{ name: user.name, email: user.email }} />

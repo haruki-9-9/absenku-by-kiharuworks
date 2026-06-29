@@ -33,9 +33,13 @@ export default async function DeveloperLayout({
       </div>
 
       {/* Desktop sidebar */}
-      <div style={{ width: 220, flexShrink: 0, position: "relative", zIndex: 10 }}>
+      <div className="absenku-sidebar-wrap">
         <Sidebar />
       </div>
+      <style>{`
+        .absenku-sidebar-wrap { width: 220px; flex-shrink: 0; position: relative; z-index: 10; }
+        @media (max-width: 768px) { .absenku-sidebar-wrap { display: none; } }
+      `}</style>
 
       {/* Mobile bottom nav */}
       <DeveloperBottomNav />
