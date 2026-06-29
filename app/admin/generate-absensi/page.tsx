@@ -60,13 +60,13 @@ export default async function GenerateAbsensiPage({
       </div>
 
       <GenerateAbsensiClient
-        kelasList={kelasList.map((k) => ({
+        kelasList={kelasList.map((k: typeof kelasList[number]) => ({
           id: k.id,
           nama: k.nama,
           programKeahlian: k.programKeahlian ?? null,
           tahunAjaran: k.tahunAjaran.nama,
           namaWaliKelas: k.waliKelas?.user.name ?? null,
-          siswa: k.siswa.map((sk) => ({
+          siswa: k.siswa.map((sk: typeof k.siswa[number]) => ({
             nama: sk.siswa.nama,
             jenisKelamin: sk.siswa.jenisKelamin,
             nomorAbsen: sk.nomorAbsen,
