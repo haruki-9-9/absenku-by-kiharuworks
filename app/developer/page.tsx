@@ -41,7 +41,7 @@ function StatCard({
   label,
   value,
   color,
-  bg,
+  bg: _bg,
 }: {
   label: string;
   value: number;

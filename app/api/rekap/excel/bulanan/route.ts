@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
   let totalS = 0, totalI = 0, totalA = 0;
   const dataStartRow = 8;
 
-  siswaData.forEach((siswa: any, idx: number) => {
+  siswaData.forEach((siswa: Record<string, number> & { nomorAbsen: number; nama: string; absen: Record<number, string>; totalS: number; totalI: number; totalA: number; seharusnya: number; realisasi: number; persen: number }, idx: number) => {
     const rowNum = dataStartRow + idx;
     const row = ws.getRow(rowNum);
     row.height = 15;
@@ -295,15 +295,15 @@ export async function POST(req: NextRequest) {
   });
 }
 
-function applyHeaderStyle(row: any, totalCols: number, bg: string, borderColor: string) {
+function applyHeaderStyle(row: import("exceljs").Row, totalCols: number, bg: string, _borderColor: string) {
   for (let c = 1; c <= totalCols; c++) {
     const cell = row.getCell(c);
     if (!cell.fill || cell.fill.fgColor?.argb === "FFFFFFFF") {
       cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bg } };
     }
     cell.border = {
-      top: { style: "thin", color: { argb: borderColor } },
-      bottom: { style: "thin", color: { argb: borderColor } },
+      top: { style: "thin", color: { argb: _borderColor } },
+      bottom: { style: "thin", color: { argb: _borderColor } },
       left: { style: "hair", color: { argb: "FFE2E8F0" } },
       right: { style: "hair", color: { argb: "FFE2E8F0" } },
     };
@@ -311,7 +311,7 @@ function applyHeaderStyle(row: any, totalCols: number, bg: string, borderColor: 
   }
 }
 
-function styleDataCell(cell: any, bg: string, borderColor: string) {
+function styleDataCell(cell: import("exceljs").Cell, bg: string, borderColor: string) {
   cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bg } };
   cell.border = {
     top: { style: "hair", color: { argb: "FFE2E8F0" } },

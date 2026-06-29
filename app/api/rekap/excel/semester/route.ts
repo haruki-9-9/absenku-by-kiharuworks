@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
   rowGrup.getCell(2).font = { bold: true, size: 9, color: { argb: "FF64748B" } };
   styleHeaderCell(rowGrup.getCell(2), colorHeaderBg, colorIndigo);
 
-  bulanList.forEach((b: any, idx: number) => {
+  bulanList.forEach((b: { label: string; tahun: number; bulan: number }, idx: number) => {
     const startCol = colBulanStart + idx * colsPerBulan;
     ws.mergeCells(6, startCol, 6, startCol + colsPerBulan - 1);
     const cell = rowGrup.getCell(startCol);
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
   const rowSIA = ws.getRow(7);
   rowSIA.height = 16;
 
-  bulanList.forEach((_: any, idx: number) => {
+  bulanList.forEach((_b: { label: string; tahun: number; bulan: number }, idx: number) => {
     const startCol = colBulanStart + idx * colsPerBulan;
     const labels: [string, string, string][] = [
       ["S", colorSakitText, "FFFFF7E0"],
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
   const dataStart = 8;
   let grandS = 0, grandI = 0, grandA = 0;
 
-  siswaData.forEach((siswa: any, idx: number) => {
+  siswaData.forEach((siswa: { nomorAbsen: number; nama: string; perBulan: Record<string, { S: number; I: number; A: number }>; totalS: number; totalI: number; totalA: number; persen: number }, idx: number) => {
     const rowNum = dataStart + idx;
     const row = ws.getRow(rowNum);
     row.height = 15;
@@ -208,11 +208,11 @@ export async function POST(req: NextRequest) {
   totLabelCell.alignment = { horizontal: "right", vertical: "middle" };
   styleHeaderCell(totLabelCell, colorHeaderBg, colorIndigo);
 
-  bulanList.forEach((_: any, idx: number) => {
+  bulanList.forEach((_b: { label: string; tahun: number; bulan: number }, idx: number) => {
     const startCol = colBulanStart + idx * colsPerBulan;
-    const tS = siswaData.reduce((s: number, r: any) => s + (r.perBulan[`${bulanList[idx].tahun}-${bulanList[idx].bulan}`]?.S ?? 0), 0);
-    const tI = siswaData.reduce((s: number, r: any) => s + (r.perBulan[`${bulanList[idx].tahun}-${bulanList[idx].bulan}`]?.I ?? 0), 0);
-    const tA = siswaData.reduce((s: number, r: any) => s + (r.perBulan[`${bulanList[idx].tahun}-${bulanList[idx].bulan}`]?.A ?? 0), 0);
+    const tS = siswaData.reduce((s: number, r: { perBulan: Record<string, { S: number; I: number; A: number }> }) => s + (r.perBulan[`${bulanList[idx].tahun}-${bulanList[idx].bulan}`]?.S ?? 0), 0);
+    const tI = siswaData.reduce((s: number, r: { perBulan: Record<string, { S: number; I: number; A: number }> }) => s + (r.perBulan[`${bulanList[idx].tahun}-${bulanList[idx].bulan}`]?.I ?? 0), 0);
+    const tA = siswaData.reduce((s: number, r: { perBulan: Record<string, { S: number; I: number; A: number }> }) => s + (r.perBulan[`${bulanList[idx].tahun}-${bulanList[idx].bulan}`]?.A ?? 0), 0);
     setDataCell(totalRow.getCell(startCol), tS, colorSakit, colorSakitText, true, "center");
     setDataCell(totalRow.getCell(startCol + 1), tI, colorIzin, colorIzinText, true, "center");
     setDataCell(totalRow.getCell(startCol + 2), tA, colorAlpa, colorAlpaText, true, "center");
@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
   });
 }
 
-function styleHeaderCell(cell: any, bg: string, borderColor: string) {
+function styleHeaderCell(cell: import("exceljs").Cell, bg: string, borderColor: string) {
   cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bg } };
   cell.border = {
     top: { style: "thin", color: { argb: borderColor } },
@@ -253,7 +253,7 @@ function styleHeaderCell(cell: any, bg: string, borderColor: string) {
   };
 }
 
-function setDataCell(cell: any, value: any, bg: string, textColor: string, bold: boolean, align: "center" | "left") {
+function setDataCell(cell: import("exceljs").Cell, value: string | number, bg: string, textColor: string, bold: boolean, align: "center" | "left") {
   cell.value = value;
   cell.font = { size: 10, bold, color: { argb: textColor } };
   cell.alignment = { horizontal: align, vertical: "middle", indent: align === "left" ? 1 : 0 };

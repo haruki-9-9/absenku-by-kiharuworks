@@ -150,7 +150,7 @@ export default async function TahunAjaranPage() {
                 {ta.semester.length === 0 ? (
                   <div style={{ padding: "16px 24px" }}>
                     <p style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>
-                      Belum ada semester. Klik "+ Semester" untuk menambahkan.
+                      Belum ada semester. Klik &quot;+ Semester&quot; untuk menambahkan.
                     </p>
                   </div>
                 ) : (

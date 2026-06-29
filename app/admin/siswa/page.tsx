@@ -29,7 +29,7 @@ export default async function SiswaPage() {
   const user = await getCurrentUser();
   if (!user || !user.sekolahId) redirect("/login");
 
-  const { siswaList, kelasList } = await getSiswaData(user.sekolahId);
+  const { siswaList, kelasList: _kelasList } = await getSiswaData(user.sekolahId);
   const totalAktif = siswaList.filter((s) => s.isActive).length;
 
   return (

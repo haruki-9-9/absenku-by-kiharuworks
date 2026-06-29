@@ -260,7 +260,7 @@ export default async function DetailSekolahPage({
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "0.5px solid rgba(99,102,241,0.08)" }}>
-                  {["Nama", "Email", "Role", "Status", "Dibuat"].map((h, i) => (
+                  {["Nama", "Email", "Role", "Status", "Dibuat"].map((h) => (
                     <th key={h} style={{
                       padding: "10px 20px", textAlign: "left",
                       fontSize: 10, fontWeight: 700, color: "#94a3b8",

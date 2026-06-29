@@ -6,7 +6,7 @@ import { tambahSemesterAction } from "../../actions";
 type State = { success: boolean; message: string };
 const initialState: State = { success: false, message: "" };
 
-export default function TambahSemesterForm({ tahunAjaranId, namaTahunAjaran }: {
+export default function TambahSemesterForm({ tahunAjaranId, namaTahunAjaran: _namaTahunAjaran }: {
   tahunAjaranId: string;
   namaTahunAjaran: string;
 }) {

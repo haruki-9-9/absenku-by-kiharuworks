@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   // ── Warna ──
   const cIndigo = "FF6366F1";
-  const cIndigoBg = "FFE0E7FF";
+  const _cIndigoBg = "FFE0E7FF";
   const cHeaderBg = "FFF5F5FF";
   const cBorder = "FFD1D5DB";
   const cGray = "FFF8FAFC";
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
   row++;
 
   // ── Header tabel ── 4 baris header
-  const headerStartRow = row;
+  const _headerStartRow = row;
 
   // Baris H1: No | Nama Siswa | L/P | [Senin...] | [Selasa...] | ... | Absensi
   const rH1 = ws.getRow(row);
@@ -244,7 +244,7 @@ export async function POST(req: NextRequest) {
   row++;
 
   // ── Baris data siswa ──
-  const siswaStartRow = row;
+  const _siswaStartRow = row;
   const sortedSiswa = [...siswa].sort((a: {nomorAbsen: number}, b: {nomorAbsen: number}) => a.nomorAbsen - b.nomorAbsen);
 
   for (let i = 0; i < sortedSiswa.length; i++) {
@@ -287,7 +287,7 @@ export async function POST(req: NextRequest) {
     row++;
   }
 
-  const siswaEndRow = row - 1;
+  const _siswaEndRow = row - 1;
 
   // ── Baris jumlah harian ──
   ws.getRow(row).height = 4;

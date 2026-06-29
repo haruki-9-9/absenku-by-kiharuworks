@@ -199,8 +199,7 @@ export default function TambahSekolahForm() {
           >
             {pending ? "Menyimpan..." : "Simpan Sekolah"}
           </button>
-          <a
-            href="/developer/sekolah"
+          <Link href="/developer/sekolah"
             style={{
               padding: "10px 20px", borderRadius: 12, fontSize: 13, fontWeight: 600,
               background: "rgba(255,255,255,0.6)", color: "#64748b",
@@ -209,7 +208,7 @@ export default function TambahSekolahForm() {
             }}
           >
             Batal
-          </a>
+          </Link>
         </div>
       </form>
     </>
