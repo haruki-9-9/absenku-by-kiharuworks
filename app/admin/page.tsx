@@ -62,6 +62,7 @@ function StatCard({
 }) {
   return (
     <div
+      className="stat-card-item"
       style={{
         background: "rgba(255,255,255,0.65)",
         backdropFilter: "blur(24px)",
@@ -102,6 +103,7 @@ function StatCard({
           {label}
         </p>
         <p
+          className="stat-value-lg"
           style={{
             marginTop: 4,
             fontSize: 32,
@@ -167,13 +169,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Stat cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 16,
-        }}
-      >
+      <div className="stat-grid-4">
         <StatCard
           label="Total Kelas"
           value={data.kelasAktif}
@@ -256,13 +252,7 @@ export default async function AdminPage() {
           >
             Info Langganan
           </p>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 16,
-            }}
-          >
+          <div className="info-grid-4">
             {[
               {
                 label: "Paket",

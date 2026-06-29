@@ -1408,3 +1408,151 @@ body {
   .preview-title { font-size: 11px; margin-bottom: 10px; }
   .dashboard-preview { height: auto; }
 }
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE GRID UTILITIES — DASHBOARD
+   Fix mobile layout untuk semua role
+───────────────────────────────────────────── */
+
+/* Stat cards grid: 4 col desktop → 2 col mobile */
+.stat-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* Stat grid: 3 col desktop → 2 col mobile */
+.stat-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* Stat grid: 5 col desktop → 2 col + 1 (wrap) mobile */
+.stat-grid-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+/* Langganan info grid: 4 col desktop → 2 col mobile */
+.info-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* Paket grid: 4 col → 2 col */
+.paket-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  /* Main content area: beri padding-top untuk topbar (56px) */
+  .absenku-main-padding {
+    padding: 16px 16px 80px !important;
+    padding-top: 16px !important;
+  }
+
+  /* Stat cards 4 → 2 kolom */
+  .stat-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* Stat cards 3 → 2 kolom */
+  .stat-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* Stat cards 5 → 2+2+1 */
+  .stat-grid-5 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* Info grid 4 → 2 kolom */
+  .info-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Paket grid 4 → 2 kolom */
+  .paket-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Overview stat grid (kehadiran widget) */
+  .overview-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Bermasalah stat grid */
+  .bermasalah-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Kehadiran stat grid 5→2 */
+  .kehadiran-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Wali stat grid 5→2 */
+  .wali-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Developer stat grid */
+  .dev-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Detail sekolah grids */
+  .detail-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .detail-info-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* Paket grid developer */
+  .ll-paket-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Preview cards homepage */
+  .preview-cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Font ukuran untuk stat value di mobile */
+  .stat-value-lg {
+    font-size: 24px !important;
+  }
+}
+
+/* Stat card item responsive padding */
+.stat-card-item {
+  /* padding handled inline */
+}
+
+@media (max-width: 768px) {
+  .stat-card-item {
+    padding: 14px 16px !important;
+  }
+
+  .stat-value-lg {
+    font-size: 24px !important;
+    letter-spacing: -0.5px !important;
+  }
+}

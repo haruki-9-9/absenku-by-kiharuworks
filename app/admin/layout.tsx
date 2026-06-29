@@ -114,8 +114,7 @@ export default async function AdminLayout({
             }
             @media (max-width: 768px) {
               .absenku-main-padding {
-                padding: 16px;
-                padding-top: 16px;
+                padding: 16px 16px 80px;
               }
             }
           `}</style>

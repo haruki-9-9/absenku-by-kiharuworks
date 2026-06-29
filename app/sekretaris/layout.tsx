@@ -72,8 +72,7 @@ export default async function SekretarisLayout({
             .absenku-main-padding { padding: 28px 32px; }
             @media (max-width: 768px) {
               .absenku-main-padding {
-                padding: 16px;
-                padding-bottom: 80px;
+                padding: 16px 16px 80px;
               }
             }
           `}</style>
