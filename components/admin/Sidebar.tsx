@@ -122,6 +122,15 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    label: "Form Absensi",
+    href: "/admin/generate-absensi",
+    icon: (
+      <svg viewBox="0 0 20 20" fill="currentColor" width={16} height={16}>
+        <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a1 1 0 102 0v-2h6v2a1 1 0 102 0v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm2 3h6V4H7v3zm-1 5a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+      </svg>
+    ),
+  },
+  {
     label: "Konfigurasi",
     href: "/admin/konfigurasi",
     icon: (
