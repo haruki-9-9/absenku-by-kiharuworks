@@ -133,7 +133,7 @@ export default function MobileDrawer({
           {navItems.map((item) => {
             const isActive = item.exact
               ? pathname === item.href
-              : pathname.startsWith(item.href);
+              : pathname === item.href || pathname.startsWith(item.href + "/");
 
             return (
               <Link

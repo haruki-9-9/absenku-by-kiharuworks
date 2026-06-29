@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useTransition, useRef } from "react";
+import { useActionState, useTransition } from "react";
 import { tambahHariLiburAction, hapusHariLiburAction } from "./actions";
 
 const NAMA_BULAN = [
@@ -46,7 +46,6 @@ export default function HariLiburClient({ hariLiburList }: Props) {
     message: "",
   });
   const [isDeleting, startDelete] = useTransition();
-  const formRef = useRef<HTMLFormElement>(null);
   const grouped = groupByBulan(hariLiburList);
 
   const inputStyle = {
@@ -87,7 +86,11 @@ export default function HariLiburClient({ hariLiburList }: Props) {
         .btn-tambah:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
         .btn-hapus:hover { background: rgba(239,68,68,0.12) !important; color: #dc2626 !important; }
         .hl-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
-        @media (max-width: 768px) { .hl-layout { grid-template-columns: 1fr; } }
+        .hl-date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 768px) {
+          .hl-layout { grid-template-columns: 1fr; }
+          .hl-date-row { grid-template-columns: 1fr; }
+        }
       `}</style>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -97,36 +100,54 @@ export default function HariLiburClient({ hariLiburList }: Props) {
             Hari Libur
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>
-            Kelola hari libur sekolah. Tanggal libur akan ditandai abu-abu di rekap absensi.
+            Kelola hari libur sekolah. Bisa setting satu hari atau range tanggal.
           </p>
         </div>
 
-        {/* Layout 2 kolom */}
         <div className="hl-layout">
-
           {/* Kiri — Form tambah */}
           <div style={{ ...cardStyle, padding: 24, display: "flex", flexDirection: "column", gap: 18 }}>
             <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Tambah Hari Libur</p>
 
-            <form
-              ref={formRef}
-              action={(formData) => {
-                formAction(formData);
-                // reset form setelah submit sukses ditangani di useEffect — tapi karena server action,
-                // kita reset manual via ref setelah action selesai
-              }}
-              style={{ display: "flex", flexDirection: "column", gap: 16 }}
-            >
-              <div>
-                <label htmlFor="tanggal" style={labelStyle}>Tanggal</label>
-                <input
-                  id="tanggal"
-                  name="tanggal"
-                  type="date"
-                  required
-                  className="hl-input"
-                  style={inputStyle}
-                />
+            <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* Range tanggal */}
+              <div className="hl-date-row">
+                <div>
+                  <label htmlFor="tanggalMulai" style={labelStyle}>Tanggal Mulai</label>
+                  <input
+                    id="tanggalMulai"
+                    name="tanggalMulai"
+                    type="date"
+                    required
+                    className="hl-input"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="tanggalAkhir" style={labelStyle}>
+                    Tanggal Akhir
+                    <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 4 }}>(opsional)</span>
+                  </label>
+                  <input
+                    id="tanggalAkhir"
+                    name="tanggalAkhir"
+                    type="date"
+                    className="hl-input"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              {/* Info range */}
+              <div style={{
+                padding: "8px 12px",
+                borderRadius: 8,
+                background: "rgba(99,102,241,0.06)",
+                border: "0.5px solid rgba(99,102,241,0.12)",
+                fontSize: 11,
+                color: "#6366f1",
+              }}>
+                💡 Kosongkan tanggal akhir untuk satu hari. Isi keduanya untuk libur panjang (misal libur semester, lebaran, dll).
               </div>
 
               <div>
@@ -135,7 +156,7 @@ export default function HariLiburClient({ hariLiburList }: Props) {
                   id="keterangan"
                   name="keterangan"
                   type="text"
-                  placeholder="cth: Hari Raya Idul Fitri"
+                  placeholder="cth: Libur Hari Raya Idul Fitri"
                   required
                   className="hl-input"
                   style={inputStyle}
@@ -179,7 +200,7 @@ export default function HariLiburClient({ hariLiburList }: Props) {
             </form>
           </div>
 
-          {/* Kanan — List hari libur */}
+          {/* Kanan — List */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {hariLiburList.length === 0 ? (
               <div style={{ ...cardStyle, padding: 48, textAlign: "center" }}>
@@ -226,7 +247,7 @@ export default function HariLiburClient({ hariLiburList }: Props) {
                             className="btn-hapus"
                             disabled={isDeleting}
                             onClick={() => {
-                              if (confirm(`Hapus "${item.keterangan}"?`)) {
+                              if (confirm(`Hapus "${item.keterangan}" (${formatTanggal(item.tanggal)})?`)) {
                                 startDelete(() => hapusHariLiburAction(item.id));
                               }
                             }}
