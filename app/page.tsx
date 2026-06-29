@@ -125,10 +125,31 @@ export default function HomePage() {
     const mockupEl = document.getElementById("mockup");
     if (mockupEl) mockupObserver.observe(mockupEl);
 
+    // Sembunyikan sticky-wa saat section order terlihat (supaya tidak dobel)
+    const stickyWa = document.querySelector(".sticky-wa") as HTMLElement | null;
+    const orderObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!stickyWa) return;
+          if (e.isIntersecting) {
+            stickyWa.style.opacity = "0";
+            stickyWa.style.pointerEvents = "none";
+          } else {
+            stickyWa.style.opacity = "1";
+            stickyWa.style.pointerEvents = "auto";
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    const orderEl = document.getElementById("mulai");
+    if (orderEl) orderObserver.observe(orderEl);
+
     return () => {
       observer.disconnect();
       statsObserver.disconnect();
       mockupObserver.disconnect();
+      orderObserver.disconnect();
       window.removeEventListener("scroll", handleNavScroll);
       window.removeEventListener("scroll", handleToTopVisibility);
     };

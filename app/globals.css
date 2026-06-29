@@ -1306,7 +1306,7 @@ body {
   gap: 8px;
   white-space: nowrap;
   text-decoration: none;
-  transition: all 0.25s;
+  transition: all 0.25s, opacity 0.3s;
   font-family: 'Inter', sans-serif;
 }
 
@@ -1398,4 +1398,13 @@ body {
   .order-title { font-size: 26px; }
 
   .footer { flex-direction: column; gap: 8px; text-align: center; padding: 20px; }
+
+  .preview-sidebar { display: none; }
+  .preview-main { padding: 12px; }
+  .preview-cards { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .preview-card { padding: 8px; }
+  .preview-card-num { font-size: 14px; }
+  .preview-card-label { font-size: 7px; }
+  .preview-title { font-size: 11px; margin-bottom: 10px; }
+  .dashboard-preview { height: auto; }
 }
