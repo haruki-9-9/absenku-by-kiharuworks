@@ -556,7 +556,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-        <div className="pricing-note">Semua harga belum termasuk PPN. Pembayaran via transfer bank.</div>
+        <div className="pricing-note">Semua harga belum termasuk PPN. Pembayaran via QRIS Gopay Merchant.</div>
       </div>
 
       {/* ── ORDER / CTA ────────────────────────── */}
