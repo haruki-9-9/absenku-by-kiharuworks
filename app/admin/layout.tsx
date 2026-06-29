@@ -73,10 +73,11 @@ export default async function AdminLayout({
         }
       `}</style>
 
-      {/* Mobile nav: TopBar + Drawer (only visible on mobile) */}
+      {/* Mobile nav: TopBar + Drawer */}
       <AdminMobileNav user={{ name: user.name, email: user.email }} />
 
       <div
+        className="absenku-content-wrap"
         style={{
           flex: 1,
           minWidth: 0,
@@ -87,14 +88,16 @@ export default async function AdminLayout({
           zIndex: 1,
         }}
       >
-        {/* Desktop header (hidden on mobile) */}
+        {/* Desktop header */}
         <div className="absenku-desktop-header">
           <Header user={user} />
         </div>
         <style>{`
           .absenku-desktop-header { display: block; }
+          .absenku-content-wrap { overflow: hidden; }
           @media (max-width: 768px) {
             .absenku-desktop-header { display: none; }
+            .absenku-content-wrap { overflow-y: auto; }
           }
         `}</style>
 
@@ -109,13 +112,9 @@ export default async function AdminLayout({
             {children}
           </div>
           <style>{`
-            .absenku-main-padding {
-              padding: 28px 32px;
-            }
+            .absenku-main-padding { padding: 28px 32px; }
             @media (max-width: 768px) {
-              .absenku-main-padding {
-                padding: 16px 16px 80px;
-              }
+              .absenku-main-padding { padding: 16px 16px 80px; }
             }
           `}</style>
         </main>

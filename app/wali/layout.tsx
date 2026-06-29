@@ -50,7 +50,6 @@ export default async function WaliLayout({
           minWidth: 0,
           display: "flex",
           flexDirection: "column",
-          overflow: "hidden",
           position: "relative",
           zIndex: 1,
         }}

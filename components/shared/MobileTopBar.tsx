@@ -25,8 +25,10 @@ export default function MobileTopBar({ onMenuClick }: MobileTopBarProps) {
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           borderBottom: "0.5px solid rgba(0,0,0,0.08)",
-          position: "sticky",
+          position: "fixed",
           top: 0,
+          left: 0,
+          right: 0,
           zIndex: 40,
         }}
       >
@@ -76,6 +78,15 @@ export default function MobileTopBar({ onMenuClick }: MobileTopBarProps) {
           </p>
         </div>
       </header>
+
+      {/* Spacer buat ngehitung tinggi fixed topbar */}
+      <div className="absenku-mobile-topbar-spacer" />
+      <style>{`
+        .absenku-mobile-topbar-spacer { display: none; }
+        @media (max-width: 768px) {
+          .absenku-mobile-topbar-spacer { display: block; height: 56px; flex-shrink: 0; }
+        }
+      `}</style>
     </>
   );
 }
