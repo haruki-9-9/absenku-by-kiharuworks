@@ -35,7 +35,7 @@ export default async function GenerateAbsensiPage({
   ]);
 
   const selectedKelas = params.kelasId
-    ? kelasList.find((k) => k.id === params.kelasId) ?? null
+    ? kelasList.find((k: typeof kelasList[number]) => k.id === params.kelasId) ?? null
     : null;
 
   return (
