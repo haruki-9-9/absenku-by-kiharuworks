@@ -7,13 +7,15 @@ import TambahSemesterForm from "./TambahSemesterForm";
 export default async function TambahSemesterPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user || user.role !== "ADMIN_SEKOLAH" || !user.sekolahId) redirect("/login");
 
+  const { id } = await params;
+
   const tahunAjaran = await prisma.tahunAjaran.findFirst({
-    where: { id: params.id, sekolahId: user.sekolahId },
+    where: { id, sekolahId: user.sekolahId },
   });
   if (!tahunAjaran) notFound();
 
