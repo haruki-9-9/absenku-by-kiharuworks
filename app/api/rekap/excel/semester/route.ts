@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
     setDataCell(row.getCell(1), siswa.nomorAbsen, bg, "FF94A3B8", false, "center");
     setDataCell(row.getCell(2), siswa.nama, bg, "FF0F172A", true, "left");
 
-    bulanList.forEach((b: any, idx2: number) => {
+    bulanList.forEach((b: { label: string; tahun: number; bulan: number }, idx2: number) => {
       const key = `${b.tahun}-${b.bulan}`;
       const data = siswa.perBulan[key] ?? { S: 0, I: 0, A: 0 };
       const startCol = colBulanStart + idx2 * colsPerBulan;

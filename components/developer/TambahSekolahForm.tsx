@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { tambahSekolahAction } from "@/app/developer/sekolah/tambah/actions";
 
