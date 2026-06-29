@@ -26,13 +26,7 @@
         "./*"
       ]
     },
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noImplicitAny": false
+    "strict": true
   },
   "include": [
     "next-env.d.ts",
