@@ -85,6 +85,19 @@ export default function TambahKelasForm({ tahunAjaranList }: { tahunAjaranList: 
               />
             </div>
 
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#475569" }}>
+                Program / Kompetensi Keahlian
+                <span style={{ color: "#94a3b8", fontWeight: 400, marginLeft: 4 }}>(opsional, khusus SMK)</span>
+              </label>
+              <input
+                name="programKeahlian"
+                type="text"
+                placeholder="Contoh: Teknik Kendaraan Ringan (TKR)"
+                style={inputStyle}
+              />
+            </div>
+
             {state.message && (
               <div style={{
                 padding: "10px 14px", borderRadius: 10, fontSize: 12,

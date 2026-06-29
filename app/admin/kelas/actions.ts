@@ -14,18 +14,17 @@ export async function tambahKelasAction(
 
   const nama = String(formData.get("nama") || "").trim();
   const tahunAjaranId = String(formData.get("tahunAjaranId") || "").trim();
+  const programKeahlian = String(formData.get("programKeahlian") || "").trim() || null;
 
   if (!nama) return { success: false, message: "Nama kelas wajib diisi." };
   if (!tahunAjaranId) return { success: false, message: "Tahun ajaran wajib dipilih." };
 
   try {
-    // Validasi tahun ajaran milik sekolah ini
     const tahunAjaran = await prisma.tahunAjaran.findFirst({
       where: { id: tahunAjaranId, sekolahId: user.sekolahId },
     });
     if (!tahunAjaran) return { success: false, message: "Tahun ajaran tidak valid." };
 
-    // Cek kuota kelas dari langganan
     const langganan = await prisma.langganan.findUnique({
       where: { sekolahId: user.sekolahId },
     });
@@ -41,14 +40,13 @@ export async function tambahKelasAction(
       };
     }
 
-    // Cek duplikat nama kelas di tahun ajaran yang sama
     const existing = await prisma.kelas.findUnique({
       where: { sekolahId_tahunAjaranId_nama: { sekolahId: user.sekolahId, tahunAjaranId, nama } },
     });
     if (existing) return { success: false, message: `Kelas "${nama}" sudah ada di tahun ajaran ini.` };
 
     await prisma.kelas.create({
-      data: { sekolahId: user.sekolahId, tahunAjaranId, nama, isActive: true },
+      data: { sekolahId: user.sekolahId, tahunAjaranId, nama, programKeahlian, isActive: true },
     });
   } catch (error) {
     console.error(error);

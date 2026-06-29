@@ -215,13 +215,14 @@ model WaliKelas {
 // ─────────────────────────────────────────────
 
 model Kelas {
-  id            String   @id @default(cuid())
-  sekolahId     String
-  tahunAjaranId String
-  nama          String
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  sekolahId        String
+  tahunAjaranId    String
+  nama             String
+  programKeahlian  String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   sekolah       Sekolah      @relation(fields: [sekolahId], references: [id], onDelete: Cascade)
   tahunAjaran   TahunAjaran  @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
