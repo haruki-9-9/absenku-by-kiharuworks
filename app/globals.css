@@ -1389,9 +1389,9 @@ body {
   .step-card + .step-card { border-left: 0.5px solid rgba(255,255,255,0.88); border-top: none; }
 
   .pricing-outer { padding: 48px 20px 44px; }
-  .pricing-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pricing-grid { grid-template-columns: 1fr; gap: 12px; max-width: 400px; }
   .pricing-title { font-size: 26px; }
-  .pricing-card { padding: 24px 18px; }
+  .pricing-card { padding: 24px 20px; }
 
   .order-outer { padding: 56px 16px 72px; }
   .order-card { padding: 32px 22px; }
